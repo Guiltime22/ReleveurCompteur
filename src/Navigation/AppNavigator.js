@@ -1,11 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import ConnectionScreen from '../Layouts/ConnectionScreen';
-import DashboardScreen from '../Layouts/DashboardScreen';
-import HistoryScreen from '../Layouts/HistoryScreen';
-import SettingsScreen from '../Layouts/SettingsScreen';
-import { COLORS } from '../Styles/colors';
+import ScanScreen from '../screens/ScanScreen';
+import DashboardScreen from '../screens/DashboardScreen';
+import HistoryScreen from '../screens/HistoryScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import { COLORS } from '../styles/global/colors';
 
 const Tab = createBottomTabNavigator();
 
@@ -16,8 +16,8 @@ export default function AppNavigator() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           switch (route.name) {
-            case 'Connexion':
-              iconName = focused ? 'wifi' : 'wifi-outline';
+            case 'Scanner':
+              iconName = focused ? 'scan' : 'scan-outline';
               break;
             case 'Dashboard':
               iconName = focused ? 'speedometer' : 'speedometer-outline';
@@ -32,20 +32,53 @@ export default function AppNavigator() {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.gray,
-        headerStyle: { backgroundColor: COLORS.primary },
-        headerTintColor: 'white',
+        tabBarInactiveTintColor: COLORS.medium,
+        headerStyle: { 
+          backgroundColor: COLORS.primary,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        headerTintColor: COLORS.white,
+        headerTitleStyle: {
+          fontWeight: '600',
+          fontSize: 18,
+        },
+        headerShown: false,
         tabBarStyle: {
           backgroundColor: COLORS.white,
           borderTopWidth: 1,
-          borderTopColor: COLORS.lightGray,
+          borderTopColor: COLORS.border,
+          paddingTop: 8,
+          paddingBottom: 8,
+          height: 110,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+          marginTop: 4,
         },
       })}
     >
-      <Tab.Screen name="Connexion" component={ConnectionScreen} />
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
-      <Tab.Screen name="Historique" component={HistoryScreen} />
-      <Tab.Screen name="Paramètres" component={SettingsScreen} />
+      <Tab.Screen 
+        name="Scanner" 
+        component={ScanScreen}
+        options={{ title: 'Scan Équipements' }}
+      />
+      <Tab.Screen 
+        name="Dashboard" 
+        component={DashboardScreen}
+        options={{ title: 'Tableau de Bord' }}
+      />
+      <Tab.Screen 
+        name="Historique" 
+        component={HistoryScreen}
+        options={{ title: 'Historique' }}
+      />
+      <Tab.Screen 
+        name="Paramètres" 
+        component={SettingsScreen}
+        options={{ title: 'Paramètres' }}
+      />
     </Tab.Navigator>
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
-import { styles } from './Card.styles';
+import { cardStyles } from '../../styles/components/ui/cardStyles';
 
 export default function Card({ 
   children, 
@@ -10,8 +10,8 @@ export default function Card({
   ...props 
 }) {
   const cardStyle = [
-    styles.card,
-    elevated && styles.elevated,
+    cardStyles.card,
+    elevated && cardStyles.elevated,
     style,
   ];
 
