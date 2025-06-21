@@ -1,4 +1,3 @@
-// src/services/mockApiService.js
 class MockApiService {
   constructor() {
     this.devices = {
@@ -23,11 +22,9 @@ class MockApiService {
 
   async detectDevice(ip) {
     console.log(`🔍 Scan device à ${ip}`);
-    
-    // Simule un délai réseau
+
     await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1000));
     
-    // Retourne un device seulement pour certaines IPs
     if (this.devices[ip]) {
       console.log(`✅ Device trouvé à ${ip}:`, this.devices[ip].serialNumber);
       return this.devices[ip];
@@ -59,30 +56,35 @@ class MockApiService {
       throw new Error('Non connecté');
     }
 
-    // Données réalistes qui varient légèrement
     const baseData = {
-      power: 2.8,
+      aEnergy: 1247.5,
+      rEnergy: 89.2,
       voltage: 230,
       current: 12.2,
-      powerFactor: 0.95,
+      powerF: 0.95,
       frequency: 50,
-      energy: 1247.5,
-      dailyConsumption: 18.4,
-      monthlyCost: 89.50,
-      temperature: 24,
     };
 
-    const data = {
+     const data = {
       ...baseData,
-      power: Math.max(0, baseData.power + (Math.random() - 0.5) * 0.8),
-      current: Math.max(0, baseData.current + (Math.random() - 0.5) * 2),
+      aEnergy: parseFloat((baseData.aEnergy + (Math.random() - 0.5) * 0.1).toFixed(2)),
+      rEnergy: parseFloat((baseData.rEnergy + (Math.random() - 0.5) * 2).toFixed(2)),
+      voltage: parseFloat((baseData.voltage + (Math.random() - 0.5) * 5).toFixed(2)),
+      current: parseFloat((Math.max(0, baseData.current + (Math.random() - 0.5) * 2)).toFixed(2)),
+      powerF: parseFloat((Math.max(0, Math.min(1, baseData.powerF + (Math.random() - 0.5) * 0.05))).toFixed(2)),
+      frequency: parseFloat((baseData.frequency + (Math.random() - 0.5) * 0.2).toFixed(2)),
+      
       powerState: this.powerState,
       timestamp: new Date().toISOString(),
     };
 
-    console.log('📊 Données récupérées:', { 
-      power: data.power.toFixed(2), 
-      powerState: data.powerState 
+    console.log('📊 Données réelles récupérées:', {
+      aEnergy: data.aEnergy.toFixed(1),
+      rEnergy: data.rEnergy.toFixed(1),
+      voltage: data.voltage.toFixed(1),
+      current: data.current.toFixed(2),
+      powerF: data.powerF.toFixed(3),
+      frequency: data.frequency.toFixed(1) 
     });
     
     return data;
@@ -101,7 +103,7 @@ class MockApiService {
   async getSecurityStatus() {
     await new Promise(resolve => setTimeout(resolve, 400));
     
-    const hasAlert = Math.random() < 0.05; // 5% de chance d'alerte
+    const hasAlert = Math.random() < 0.05;
     
     return {
       status: hasAlert ? 'alert' : 'secure',

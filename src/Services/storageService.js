@@ -9,7 +9,6 @@ class StorageService {
     USER_SETTINGS: 'user_settings',
   };
 
-  // Gestion des identifiants avec validation
   async storeCredentials(password) {
     try {
       if (!password || typeof password !== 'string') {

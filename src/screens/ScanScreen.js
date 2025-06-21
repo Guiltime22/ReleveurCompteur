@@ -64,89 +64,107 @@ export default function ScanScreen({ navigation }) {
     return (
       <View style={scanScreenStyles.container}>
         <View style={scanScreenStyles.header}>
-          <TouchableOpacity 
-            style={scanScreenStyles.headerIconClickable}
-            onPress={scanNetwork}
-            disabled={isScanning}
-          >
-            <Ionicons 
-              name={isScanning ? "hourglass" : "checkmark-circle"} 
-              size={32} 
-              color="#ffffff" 
+          <View style={scanScreenStyles.headerContent}>
+            <View style={scanScreenStyles.headerIcon}>
+              <Ionicons name="checkmark-circle" size={24} color="white" />
+            </View>
+            <View style={scanScreenStyles.headerTextContainer}>
+              <Text style={scanScreenStyles.title}>Connecté</Text>
+              <Text style={scanScreenStyles.subtitle}>
+                Équipement connecté avec succès
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        <ScrollView
+          style={scanScreenStyles.scrollView}
+          contentContainerStyle={scanScreenStyles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={scanScreenStyles.connectedState}>
+            <Ionicons name="checkmark-circle" size={64} color={COLORS.success} />
+            <Text style={scanScreenStyles.connectedTitle}>
+              Déjà Connecté
+            </Text>
+            <Text style={scanScreenStyles.connectedText}>
+              Appuyez sur le bouton ci-dessous pour accéder au tableau de bord
+            </Text>
+            <Button
+              title="Aller au Dashboard"
+              onPress={() => navigation.navigate('Dashboard')}
+              variant="primary"
+              size="large"
+              icon="speedometer"
+              style={scanScreenStyles.dashboardButton}
             />
-          </TouchableOpacity>
-          <Text style={scanScreenStyles.title}>Déjà Connecté</Text>
-          <Text style={scanScreenStyles.subtitle}>
-            Appuyez sur l'icône pour scanner d'autres équipements
-          </Text>
-        </View>
-        
-        <View style={scanScreenStyles.content}>
-          <Button
-            title="Aller au Dashboard"
-            onPress={() => navigation.navigate('Dashboard')}
-            variant="primary"
-            size="large"
-            icon="speedometer"
-          />
-        </View>
+          </View>
+        </ScrollView>
       </View>
     );
   }
 
   return (
     <View style={scanScreenStyles.container}>
+      <View style={scanScreenStyles.header}>
+        <View style={scanScreenStyles.headerContent}>
+          <Ionicons name="scan" size={24} color="white" />
+          <View style={scanScreenStyles.headerTextContainer}>
+            <Text style={scanScreenStyles.title}>Scanner</Text>
+            <Text style={scanScreenStyles.subtitle}>
+              {isScanning
+                ? "Recherche en cours..."
+                : "Liste des équipements disponible"
+              }
+            </Text>
+          </View>
+        </View>
+      </View>
+
       <ScrollView
         style={scanScreenStyles.scrollView}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        contentContainerStyle={scanScreenStyles.scrollContent}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            colors={[COLORS.primary]}
+            tintColor={COLORS.primary}
+          />
+        }
       >
-        {/* Header avec icône cliquable */}
-        <View style={scanScreenStyles.header}>
-          <TouchableOpacity 
-            style={scanScreenStyles.headerIconClickable}
-            onPress={scanNetwork}
-            disabled={isScanning}
-            activeOpacity={0.8}
-          >
-            <Ionicons 
-              name={isScanning ? "hourglass" : "scan"} 
-              size={32} 
-              color="#ffffff" 
-            />
-          </TouchableOpacity>
-          <Text style={scanScreenStyles.title}>Scanner les Équipements</Text>
-          <Text style={scanScreenStyles.subtitle}>
-            {isScanning 
-              ? "Recherche en cours..." 
-              : "Appuyez sur l'icône pour rechercher des compteurs"
-            }
-          </Text>
+        <View style={scanScreenStyles.instructionsCard}>
+          <View style={scanScreenStyles.instructionRow}>
+            <Ionicons name="wifi" size={20} color={COLORS.primary} />
+            <Text style={scanScreenStyles.instructionText}>
+              Assurez-vous d'être connecté au réseau WiFi du compteur
+            </Text>
+          </View>
+          <View style={scanScreenStyles.instructionRow}>
+            <Ionicons name="refresh" size={20} color={COLORS.primary} />
+            <Text style={scanScreenStyles.instructionText}>
+              Tirez vers le bas pour actualiser ou appuyez sur l'icône radar
+            </Text>
+          </View>
         </View>
 
-        {/* Status Section - Plus de bouton */}
-        <View style={scanScreenStyles.statusSection}>
-          {error && (
-            <View style={scanScreenStyles.errorContainer}>
-              <Ionicons name="alert-circle" size={20} color="#ef4444" />
-              <Text style={scanScreenStyles.errorText}>{error}</Text>
-            </View>
-          )}
+        {error && (
+          <View style={scanScreenStyles.errorContainer}>
+            <Ionicons name="alert-circle" size={20} color={COLORS.danger} />
+            <Text style={scanScreenStyles.errorText}>{error}</Text>
+          </View>
+        )}
 
-          {isScanning && (
-            <View style={scanScreenStyles.loadingContainer}>
-              <LoadingSpinner size="large" />
-              <Text style={scanScreenStyles.loadingText}>
-                Scan du réseau en cours...
-              </Text>
-            </View>
-          )}
-        </View>
+        {isScanning && (
+          <View style={scanScreenStyles.loadingContainer}>
+            <LoadingSpinner size="large" color={COLORS.primary} />
+            <Text style={scanScreenStyles.loadingText}>
+              Scan du réseau en cours...
+            </Text>
+          </View>
+        )}
 
-        {/* Devices List */}
         {devices.length > 0 && (
           <View style={scanScreenStyles.devicesSection}>
             <View style={scanScreenStyles.sectionHeader}>
@@ -154,7 +172,9 @@ export default function ScanScreen({ navigation }) {
                 Équipements détectés
               </Text>
               <View style={scanScreenStyles.deviceCount}>
-                <Text style={scanScreenStyles.deviceCountText}>{devices.length}</Text>
+                <Text style={scanScreenStyles.deviceCountText}>
+                  {devices.length}
+                </Text>
               </View>
             </View>
             
@@ -165,41 +185,44 @@ export default function ScanScreen({ navigation }) {
                   key={device.ip}
                   device={device}
                   onPress={() => handleDeviceSelect(device)}
+                  style={scanScreenStyles.deviceCard}
                 />
               ))
             }
           </View>
         )}
 
-        {/* Empty State */}
         {!isScanning && devices.length === 0 && !error && (
           <View style={scanScreenStyles.emptyState}>
-            <Ionicons name="wifi-outline" size={64} color="#6b7280" />
-            <Text style={scanScreenStyles.emptyTitle}>Aucun équipement détecté</Text>
+            <Ionicons name="search" size={64} color={COLORS.medium} />
+            <Text style={scanScreenStyles.emptyTitle}>
+              Aucun équipement détecté
+            </Text>
             <Text style={scanScreenStyles.emptySubtitle}>
-              Assurez-vous d'être connecté au réseau WiFi du compteur
+              Assurez-vous d'être connecté au réseau WiFi du compteur et tirez vers le bas pour réessayer
             </Text>
           </View>
         )}
       </ScrollView>
 
-      {/* Password Modal */}
       <Modal
         visible={showPasswordModal}
-        animationType="slide"
         transparent={true}
+        animationType="slide"
         onRequestClose={() => setShowPasswordModal(false)}
       >
         <View style={scanScreenStyles.modalOverlay}>
           <View style={scanScreenStyles.modalContent}>
             <View style={scanScreenStyles.modalHeader}>
-              <Text style={scanScreenStyles.modalTitle}>Connexion au compteur</Text>
-              <Button
-                icon="close"
-                variant="ghost"
-                size="small"
+              <Text style={scanScreenStyles.modalTitle}>
+                Connexion au compteur
+              </Text>
+              <TouchableOpacity
                 onPress={() => setShowPasswordModal(false)}
-              />
+                style={scanScreenStyles.closeButton}
+              >
+                <Ionicons name="close" size={24} color={COLORS.medium} />
+              </TouchableOpacity>
             </View>
 
             {selectedDevice && (
@@ -220,21 +243,20 @@ export default function ScanScreen({ navigation }) {
                   style={scanScreenStyles.textInput}
                   value={password}
                   onChangeText={setPassword}
-                  placeholder="Entrez le mot de passe (test123)"
+                  placeholder="Entrez le mot de passe"
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
-                  blurOnSubmit={false}
-                  returnKeyType="done"
+                  autoCorrect={false}
                 />
                 <TouchableOpacity
                   style={scanScreenStyles.eyeButton}
                   onPress={() => setShowPassword(!showPassword)}
                   activeOpacity={0.7}
                 >
-                  <Ionicons 
-                    name={showPassword ? 'eye-off' : 'eye'} 
-                    size={24} 
-                    color={COLORS.medium} 
+                  <Ionicons
+                    name={showPassword ? "eye-off" : "eye"}
+                    size={20}
+                    color={COLORS.medium}
                   />
                 </TouchableOpacity>
               </View>
@@ -246,18 +268,17 @@ export default function ScanScreen({ navigation }) {
             <View style={scanScreenStyles.modalActions}>
               <Button
                 title="Annuler"
+                onPress={() => setShowPasswordModal(false)}
                 variant="outline"
                 size="medium"
-                onPress={() => setShowPasswordModal(false)}
                 style={scanScreenStyles.modalButton}
               />
               <Button
                 title="Se connecter"
+                onPress={handleConnect}
                 variant="primary"
                 size="medium"
-                onPress={handleConnect}
                 loading={isLoading}
-                disabled={!password.trim()}
                 style={scanScreenStyles.modalButton}
               />
             </View>

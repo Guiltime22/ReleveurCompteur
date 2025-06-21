@@ -4,91 +4,107 @@ import { TYPOGRAPHY } from '../global/typography';
 import { SPACING } from '../global/spacing';
 import { GLOBAL_STYLES } from '../global/globalStyles';
 
+const HEADER_HEIGHT = 120;
+
 export const historyScreenStyles = StyleSheet.create({
   container: {
     ...GLOBAL_STYLES.container,
+    paddingTop: HEADER_HEIGHT,
   },
-  
+
+  header: {
+    backgroundColor: COLORS.primary,
+    paddingTop: SPACING.xl,
+    paddingBottom: SPACING.md,
+    paddingHorizontal: SPACING.screenPadding,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    ...GLOBAL_STYLES.shadow,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    elevation: 10,
+  },
+
+  headerContent: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    minHeight: 80,
+  },
+
+  headerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.white + '20',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.sm,
+  },
+
+  headerTextContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+
+  headerActionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.white + '20',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: SPACING.sm,
+  },
+
+  title: {
+    ...TYPOGRAPHY.h3,
+    color: COLORS.white,
+    textAlign: 'center',
+    marginBottom: 2,
+  },
+
+  subtitle: {
+    ...TYPOGRAPHY.caption,
+    color: COLORS.white + 'CC',
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+
+  // Contenu scrollable
   scrollView: {
     flex: 1,
   },
-  
-  header: {
-    alignItems: 'center',
-    paddingTop: SPACING.xxl,
-    paddingBottom: SPACING.xl,
+
+  scrollContent: {
     paddingHorizontal: SPACING.screenPadding,
-    backgroundColor: COLORS.primary,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    paddingTop: SPACING.md,
+    paddingBottom: 100,
   },
-  
-  headerIconClickable: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: COLORS.white + '20',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  
-  title: {
-    ...TYPOGRAPHY.h2,
-    color: COLORS.white,
-    textAlign: 'center',
-    marginBottom: SPACING.sm,
-  },
-  
-  subtitle: {
-    ...TYPOGRAPHY.body,
-    color: COLORS.white + 'CC',
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  
-  headerIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: COLORS.white + '20',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-  },
-  
-  content: {
-    paddingHorizontal: SPACING.screenPadding,
-    paddingTop: SPACING.lg,
-  },
-  
+
+  // États et cartes
   emptyState: {
     alignItems: 'center',
     paddingVertical: SPACING.xxl,
   },
-  
-  emptyIcon: {
-    marginBottom: SPACING.lg,
-  },
-  
+
   emptyTitle: {
     ...TYPOGRAPHY.h3,
     color: COLORS.medium,
+    marginTop: SPACING.lg,
     marginBottom: SPACING.sm,
   },
-  
+
   emptySubtitle: {
     ...TYPOGRAPHY.body,
     color: COLORS.medium,
     textAlign: 'center',
     lineHeight: 22,
   },
-  
+
   historyCard: {
     backgroundColor: COLORS.white,
     borderRadius: 16,
@@ -96,12 +112,13 @@ export const historyScreenStyles = StyleSheet.create({
     marginBottom: SPACING.md,
     ...GLOBAL_STYLES.shadow,
   },
-  
+
   historyHeader: {
-    ...GLOBAL_STYLES.row,
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: SPACING.md,
   },
-  
+
   deviceIcon: {
     width: 48,
     height: 48,
@@ -111,59 +128,59 @@ export const historyScreenStyles = StyleSheet.create({
     alignItems: 'center',
     marginRight: SPACING.md,
   },
-  
+
   deviceInfo: {
     flex: 1,
   },
-  
+
   deviceSerial: {
     ...TYPOGRAPHY.h4,
     color: COLORS.dark,
     marginBottom: 4,
   },
-  
+
   deviceIP: {
     ...TYPOGRAPHY.caption,
     color: COLORS.medium,
   },
-  
+
   connectionTime: {
-    ...GLOBAL_STYLES.row,
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: COLORS.light,
     paddingHorizontal: SPACING.sm,
     paddingVertical: 4,
     borderRadius: 8,
-    alignSelf: 'flex-start',
   },
-  
+
   connectionTimeText: {
     ...TYPOGRAPHY.small,
     color: COLORS.medium,
     marginLeft: 4,
   },
-  
+
   dataPreview: {
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
     paddingTop: SPACING.md,
   },
-  
+
   dataRow: {
-    ...GLOBAL_STYLES.row,
-    ...GLOBAL_STYLES.spaceBetween,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: SPACING.sm,
   },
-  
+
   dataLabel: {
     ...TYPOGRAPHY.caption,
     color: COLORS.medium,
   },
-  
+
   dataValue: {
     ...TYPOGRAPHY.captionMedium,
     color: COLORS.dark,
   },
-  
+
   actionButton: {
     marginTop: SPACING.md,
   },

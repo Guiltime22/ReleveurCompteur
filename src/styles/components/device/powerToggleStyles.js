@@ -6,56 +6,73 @@ import { GLOBAL_STYLES } from '../../global/globalStyles';
 
 export const powerToggleStyles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    padding: SPACING.lg,
     backgroundColor: COLORS.white,
     borderRadius: 16,
-    margin: SPACING.md,
+    padding: SPACING.md,
     ...GLOBAL_STYLES.shadow,
+    marginBottom: SPACING.md,
   },
-  
+
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.sm,
+  },
+
+  textSection: {
+    flex: 1,
+    paddingRight: SPACING.md,
+  },
+
   title: {
-    ...TYPOGRAPHY.h4,
+    ...TYPOGRAPHY.bodyMedium,
     color: COLORS.dark,
-    marginBottom: SPACING.lg,
+    marginBottom: 4,
   },
-  
-  toggle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+
+  status: {
+    ...TYPOGRAPHY.caption,
+    fontWeight: '600',
+  },
+
+  toggleCompact: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: SPACING.md,
-    ...GLOBAL_STYLES.shadowLarge,
+    ...GLOBAL_STYLES.shadow,
   },
-  
+
   toggleOn: {
     backgroundColor: COLORS.success,
   },
-  
+
   toggleOff: {
     backgroundColor: COLORS.medium,
   },
-  
+
   toggleDisabled: {
     backgroundColor: COLORS.border,
     opacity: 0.6,
   },
-  
+
   toggleContent: {
     alignItems: 'center',
-    gap: SPACING.sm,
+    gap: 2,
   },
-  
+
   toggleText: {
-    ...TYPOGRAPHY.captionMedium,
+    ...TYPOGRAPHY.small,
     color: COLORS.white,
+    fontWeight: 'bold',
   },
-  
+
   instruction: {
-    ...TYPOGRAPHY.caption,
+    ...TYPOGRAPHY.small,
     color: COLORS.medium,
     textAlign: 'center',
+    fontStyle: 'italic',
   },
 });
