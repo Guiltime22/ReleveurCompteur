@@ -224,6 +224,44 @@ export default function DashboardScreen({ navigation }) {
           style={{ marginBottom: SPACING.lg }}
         />
 
+        {meterData?.fraudState !== undefined && (
+          <View style={dashboardScreenStyles.fraudIndicator}>
+            <View style={[
+              dashboardScreenStyles.fraudIcon,
+              { backgroundColor: meterData.fraudState ? COLORS.danger + '20' : COLORS.success + '20' }
+            ]}>
+              <Ionicons 
+                name={meterData.fraudState ? "warning" : "shield-checkmark"} 
+                size={20} 
+                color={meterData.fraudState ? COLORS.danger : COLORS.success} 
+              />
+            </View>
+            
+            <View style={dashboardScreenStyles.fraudTextContainer}>
+              <Text style={dashboardScreenStyles.fraudTitle}>Sécurité</Text>
+              <Text style={[
+                dashboardScreenStyles.fraudStatus,
+                { color: meterData.fraudState ? COLORS.danger : COLORS.success }
+              ]}>
+                {meterData.fraudState ? 'FRAUDE DÉTECTÉE' : 'NORMAL'}
+              </Text>
+            </View>
+            
+            {meterData.fraudState && (
+              <TouchableOpacity 
+                style={dashboardScreenStyles.fraudAlert}
+                onPress={() => Alert.alert(
+                  'Alerte Sécurité', 
+                  'Une tentative de fraude a été détectée sur cet équipement.',
+                  [{ text: 'OK', style: 'default' }]
+                )}
+              >
+                <Ionicons name="information-circle" size={16} color={COLORS.danger} />
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+
         <View style={dashboardScreenStyles.metricsGrid}>
           {metrics.map((metric) => {
             const iconConfig = getMetricIcon(metric.type);

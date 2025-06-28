@@ -1,7 +1,7 @@
-// src/context/DeviceContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import mockApiService from '../services/mockApiService';
+import apiService from '../services/apiService';
 import storageService from '../services/storageService';
 import { COLORS } from '../styles/global/colors';
 import { TYPOGRAPHY } from '../styles/global/typography';
@@ -9,46 +9,38 @@ import { TYPOGRAPHY } from '../styles/global/typography';
 const DeviceContext = createContext();
 
 export const DeviceProvider = ({ children }) => {
-  // États de connexion
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [connectedDevice, setConnectedDevice] = useState(null);
   const [meterData, setMeterData] = useState(null);
   const [error, setError] = useState(null);
-  
-  // État d'initialisation
+
   const [isInitialized, setIsInitialized] = useState(false);
   const [initializationError, setInitializationError] = useState(null);
-  
-  // Auto-refresh
+
   const [autoRefreshInterval, setAutoRefreshInterval] = useState(null);
 
-  // Initialisation au démarrage de l'app
   useEffect(() => {
     const initializeApp = async () => {
       try {
         console.log('🚀 Initialisation de l\'application...');
         
-        // Vérifier les paramètres utilisateur
         const userSettings = await storageService.getUserSettings();
         console.log('📋 Paramètres utilisateur chargés:', userSettings);
-        
-        // Tentative de reconnexion automatique
+
         const savedPassword = await storageService.getCredentials();
         const deviceHistory = await storageService.getDeviceHistory();
         
         if (savedPassword && deviceHistory.length > 0) {
           console.log('🔄 Tentative de reconnexion automatique...');
           const lastDevice = deviceHistory[0];
-          
-          // Vérifier que le device a toutes les propriétés nécessaires
+
           if (lastDevice && lastDevice.ip && lastDevice.serialNumber) {
             try {
               await connectToDeviceInternal(lastDevice, savedPassword, true);
               console.log('✅ Reconnexion automatique réussie');
             } catch (error) {
               console.log('❌ Reconnexion automatique échouée:', error.message);
-              // Ne pas afficher d'erreur pour la reconnexion auto
             }
           }
         }
@@ -58,7 +50,6 @@ export const DeviceProvider = ({ children }) => {
         console.error('❌ Erreur d\'initialisation:', error);
         setInitializationError(error.message);
       } finally {
-        // Délai minimum pour éviter le flash
         setTimeout(() => {
           setIsInitialized(true);
         }, 1000);
@@ -68,7 +59,6 @@ export const DeviceProvider = ({ children }) => {
     initializeApp();
   }, []);
 
-  // Auto-refresh des données
   useEffect(() => {
     if (isConnected && connectedDevice && connectedDevice.ip) {
       console.log('🔄 Démarrage auto-refresh des données');
@@ -91,34 +81,30 @@ export const DeviceProvider = ({ children }) => {
     }
   }, [isConnected, connectedDevice]);
 
-  // Fonction interne de connexion
   const connectToDeviceInternal = async (device, password, isSilent = false) => {
     if (!device || !device.ip) {
       throw new Error('Équipement invalide');
     }
-
-    console.log(`🔌 Connexion à ${device.serialNumber} (${device.ip})`);
     
     try {
-      // Authentification
-      const authResult = await mockApiService.authenticate(password);
+      console.log(`🔌 Connexion à ${device.serialNumber} (${device.ip})`);
+
+      await apiService.connectToDevice(device, password);
       
-      if (authResult.success) {
-        setIsConnected(true);
-        setConnectedDevice(device);
-        setError(null);
-        
-        // Sauvegarder dans le cache
-        await storageService.saveDeviceToHistory(device);
-        await storageService.storeCredentials(password);
-        
-        // Récupérer les données initiales
-        await fetchMeterDataInternal();
-        
-        console.log('✅ Connexion réussie');
-        return true;
-      }
-      throw new Error('Authentification échouée');
+      setIsConnected(true);
+      setConnectedDevice(device);
+      setError(null);
+      
+      // Sauvegarder dans le cache
+      await storageService.saveDeviceToHistory(device);
+      await storageService.storeCredentials(password);
+      
+      // Récupérer les données initiales
+      await fetchMeterDataInternal();
+      
+      console.log('✅ Connexion réussie');
+      return true;
+      
     } catch (err) {
       console.error('❌ Erreur de connexion:', err.message);
       if (!isSilent) {
@@ -148,7 +134,7 @@ export const DeviceProvider = ({ children }) => {
     }
     
     try {
-      const data = await mockApiService.getMeterData();
+      const data = await apiService.getMeterData();
       setMeterData(data);
       
       // Sauvegarder les données dans le cache
@@ -183,7 +169,7 @@ export const DeviceProvider = ({ children }) => {
       const newState = !meterData.powerState;
       console.log(`🔌 Changement état alimentation: ${newState ? 'ON' : 'OFF'}`);
       
-      await mockApiService.togglePower(newState);
+      await apiService.togglePower(newState);
       
       // Mettre à jour les données locales immédiatement
       setMeterData(prev => ({

@@ -88,7 +88,46 @@ export const dashboardScreenStyles = StyleSheet.create({
     elevation: 6,
   },
 
-  // ✅ Contenu scrollable
+  fraudIndicator: {
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    ...GLOBAL_STYLES.shadow,
+  },
+
+  fraudIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.md,
+  },
+
+  fraudTextContainer: {
+    flex: 1,
+  },
+
+  fraudTitle: {
+    ...TYPOGRAPHY.bodyMedium,
+    color: COLORS.dark,
+    marginBottom: 2,
+  },
+
+  fraudStatus: {
+    ...TYPOGRAPHY.caption,
+    fontWeight: '600',
+  },
+
+  fraudAlert: {
+    padding: SPACING.sm,
+    borderRadius: 8,
+    backgroundColor: COLORS.danger + '10',
+  },
+
   scrollView: {
     flex: 1,
   },
@@ -99,10 +138,6 @@ export const dashboardScreenStyles = StyleSheet.create({
     paddingBottom: 100,
   },
 
-  // ✅ Supprimer tous les anciens styles de header
-  // headerIconClickable, deviceName, deviceIP, etc.
-
-  // Garder seulement les styles nécessaires
   metricsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -181,7 +216,6 @@ export const dashboardScreenStyles = StyleSheet.create({
     marginLeft: SPACING.sm,
   },
 
-  // Modal styles restent identiques
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

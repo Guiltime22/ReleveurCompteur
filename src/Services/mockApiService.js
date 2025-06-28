@@ -16,8 +16,50 @@ class MockApiService {
     };
     this.isConnected = false;
     this.powerState = true;
+    this.fraudState = false;
     
     console.log('🔧 MockApiService initialisé');
+  }
+
+  async scanNetwork() {
+    console.log('🎭 MOCK: Scan réseau...');
+    const devices = [];
+    
+    // Scanner les IPs définies
+    for (const ip of Object.keys(this.devices)) {
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulation délai
+      
+      const device = await this.detectDevice(ip);
+      if (device) {
+        devices.push({
+          ip,
+          ...device,
+          signalStrength: Math.floor(Math.random() * 40) + 60,
+        });
+      }
+    }
+    
+    console.log(`✅ MOCK: ${devices.length} équipement(s) détecté(s)`);
+    return devices;
+  }
+
+  async connectToDevice(device, password) {
+    console.log(`🎭 MOCK: Connexion à ${device.ip} avec mot de passe: ${password}`);
+    
+    if (!this.devices[device.ip]) {
+      throw new Error('Device non trouvé');
+    }
+
+    // ✅ Vérifier les mots de passe valides pour le mock
+    if (!['test123', 'admin'].includes(password)) {
+      console.log('❌ MOCK: Mot de passe incorrect:', password);
+      throw new Error('Mot de passe incorrect. Utilisez "test123" ou "admin"');
+    }
+
+    this.isConnected = true;
+    this.connectedDevice = { ...device, ...this.devices[device.ip] };
+    console.log('✅ MOCK: Connexion établie');
+    return true;
   }
 
   async detectDevice(ip) {
@@ -35,18 +77,13 @@ class MockApiService {
   }
 
   async authenticate(password) {
-    console.log(`🔐 Tentative d'authentification avec: ${password}`);
+    console.log('🎭 MOCK: Authentification avec:', password);
     
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    
-    if (password === "test123" || password === "admin") {
-      this.isConnected = true;
-      console.log('✅ Authentification réussie');
+    if (['test123', 'admin'].includes(password)) {
       return { success: true };
+    } else {
+      return { success: false, error: 'Mot de passe incorrect' };
     }
-    
-    console.log('❌ Authentification échouée');
-    throw new Error('Mot de passe incorrect');
   }
 
   async getMeterData() {
@@ -65,6 +102,10 @@ class MockApiService {
       frequency: 50,
     };
 
+    if (Math.random() < 0.05) {
+      this.fraudState = !this.fraudState;
+    }
+
      const data = {
       ...baseData,
       aEnergy: parseFloat((baseData.aEnergy + (Math.random() - 0.5) * 0.1).toFixed(2)),
@@ -75,6 +116,7 @@ class MockApiService {
       frequency: parseFloat((baseData.frequency + (Math.random() - 0.5) * 0.2).toFixed(2)),
       
       powerState: this.powerState,
+      fraudState: this.fraudState,
       timestamp: new Date().toISOString(),
     };
 
@@ -84,7 +126,8 @@ class MockApiService {
       voltage: data.voltage.toFixed(1),
       current: data.current.toFixed(2),
       powerF: data.powerF.toFixed(3),
-      frequency: data.frequency.toFixed(1) 
+      frequency: data.frequency.toFixed(1),
+      fraudState: data.fraudState
     });
     
     return data;
@@ -97,6 +140,18 @@ class MockApiService {
     this.powerState = state;
     
     console.log('✅ État changé avec succès');
+    return { success: true };
+  }
+
+  async simulateFraud() {
+    console.log('🚨 MOCK: Simulation de fraude');
+    this.fraudState = true;
+    return { success: true };
+  }
+
+  async clearFraud() {
+    console.log('✅ MOCK: Effacement alerte fraude');
+    this.fraudState = false;
     return { success: true };
   }
 

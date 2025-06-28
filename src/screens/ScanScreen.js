@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useDeviceScanner } from '../hooks/useDeviceScanner';
 import { useDevice } from '../context/DeviceContext';
+import { APP_CONFIG } from '../config/appConfig';
 import Button from '../components/ui/Button';
 import DeviceCard from '../components/device/DeviceCard';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
@@ -46,19 +47,33 @@ export default function ScanScreen({ navigation }) {
     setPassword('');
   };
 
+  // ✅ S'assurer que la fonction est bien définie
   const handleConnect = async () => {
-    if (!password.trim()) {
-      Alert.alert('Erreur', 'Veuillez entrer le mot de passe');
-      return;
-    }
+    console.log('🔌 Bouton connecter appuyé'); // ✅ Ajouter ce log pour debug
+    
+    try {
+      if (APP_CONFIG.USE_MOCK_DATA) {
+        if (!password.trim()) {
+          Alert.alert('Erreur', 'Veuillez entrer le mot de passe');
+          return;
+        }
+      }
 
-    const success = await connectToDevice(selectedDevice, password);
-    if (success) {
-      setShowPasswordModal(false);
-      setPassword('');
-      navigation.navigate('Dashboard');
+      console.log('🔌 Tentative de connexion...'); // ✅ Log de debug
+      const success = await connectToDevice(selectedDevice, password || 'no-password');
+      
+      if (success) {
+        console.log('✅ Connexion réussie'); // ✅ Log de debug
+        setShowPasswordModal(false);
+        setPassword('');
+        navigation.navigate('Dashboard');
+      }
+    } catch (error) {
+      console.error('❌ Erreur connexion:', error);
+      Alert.alert('Erreur de connexion', error.message);
     }
   };
+
 
   if (isConnected) {
     return (
