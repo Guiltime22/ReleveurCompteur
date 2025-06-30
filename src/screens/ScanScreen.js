@@ -18,6 +18,7 @@ import DeviceCard from '../components/device/DeviceCard';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { scanScreenStyles } from '../styles/screens/scanScreenStyles';
 import { COLORS } from '../styles/global/colors';
+import { connectionLog } from '../config/appConfig';
 
 export default function ScanScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
@@ -47,9 +48,8 @@ export default function ScanScreen({ navigation }) {
     setPassword('');
   };
 
-  // ✅ S'assurer que la fonction est bien définie
   const handleConnect = async () => {
-    console.log('🔌 Bouton connecter appuyé'); // ✅ Ajouter ce log pour debug
+    connectionLog('Bouton connecter appuyé');
     
     try {
       if (APP_CONFIG.USE_MOCK_DATA) {
@@ -59,17 +59,17 @@ export default function ScanScreen({ navigation }) {
         }
       }
 
-      console.log('🔌 Tentative de connexion...'); // ✅ Log de debug
+      connectionLog('Tentative de connexion...');
       const success = await connectToDevice(selectedDevice, password || 'no-password');
       
       if (success) {
-        console.log('✅ Connexion réussie'); // ✅ Log de debug
+        connectionLog('Connexion réussie');
         setShowPasswordModal(false);
         setPassword('');
         navigation.navigate('Dashboard');
       }
     } catch (error) {
-      console.error('❌ Erreur connexion:', error);
+      connectionLog('Erreur connexion', error);
       Alert.alert('Erreur de connexion', error.message);
     }
   };

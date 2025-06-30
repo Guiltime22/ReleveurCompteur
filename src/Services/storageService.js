@@ -1,5 +1,5 @@
-// src/services/storageService.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { storageLog } from '../config/appConfig';
 
 class StorageService {
   KEYS = {
@@ -15,9 +15,9 @@ class StorageService {
         throw new Error('Mot de passe invalide');
       }
       await AsyncStorage.setItem(this.KEYS.CREDENTIALS, password);
-      console.log('💾 Identifiants sauvegardés');
+      storageLog('Identifiants sauvegardés');
     } catch (error) {
-      console.error('❌ Erreur stockage identifiants:', error);
+      storageLog('Erreur stockage identifiants', error);
       throw error;
     }
   }
@@ -26,29 +26,28 @@ class StorageService {
     try {
       const password = await AsyncStorage.getItem(this.KEYS.CREDENTIALS);
       if (password) {
-        console.log('🔑 Identifiants récupérés');
+        storageLog('Identifiants récupérés');
       }
       return password;
     } catch (error) {
-      console.error('❌ Erreur récupération identifiants:', error);
+      storageLog('Erreur récupération identifiants', error);
       return null;
     }
   }
 
-  async removeCredentials() {
+ async removeCredentials() {
     try {
       await AsyncStorage.removeItem(this.KEYS.CREDENTIALS);
-      console.log('🗑️ Identifiants supprimés');
+      storageLog('Identifiants supprimés');
     } catch (error) {
-      console.error('❌ Erreur suppression identifiants:', error);
+      storageLog('Erreur suppression identifiants', error);
     }
   }
 
-  // Historique des équipements avec validation
   async saveDeviceToHistory(device) {
     try {
       if (!device || !device.ip || !device.serialNumber) {
-        console.warn('⚠️ Device invalide pour l\'historique:', device);
+        storageLog('Device invalide pour l\'historique', device);
         return;
       }
 
@@ -62,13 +61,12 @@ class StorageService {
 
       if (existingIndex >= 0) {
         history[existingIndex] = deviceWithTimestamp;
-        console.log('📝 Device mis à jour dans l\'historique');
+        storageLog('Device mis à jour dans l\'historique');
       } else {
         history.unshift(deviceWithTimestamp);
-        console.log('📝 Nouveau device ajouté à l\'historique');
+        storageLog('Nouveau device ajouté à l\'historique');
       }
 
-      // Garder seulement les 10 derniers
       const limitedHistory = history.slice(0, 10);
       
       await AsyncStorage.setItem(
@@ -76,7 +74,7 @@ class StorageService {
         JSON.stringify(limitedHistory)
       );
     } catch (error) {
-      console.error('❌ Erreur sauvegarde historique:', error);
+      storageLog('Erreur sauvegarde historique', error);
     }
   }
 
@@ -85,20 +83,18 @@ class StorageService {
       const history = await AsyncStorage.getItem(this.KEYS.DEVICE_HISTORY);
       const parsedHistory = history ? JSON.parse(history) : [];
       
-      // Valider chaque device dans l'historique
       const validHistory = parsedHistory.filter(device => 
         device && device.ip && device.serialNumber
       );
       
-      console.log(`📚 Historique récupéré: ${validHistory.length} devices`);
+      storageLog(`Historique récupéré: ${validHistory.length} devices`);
       return validHistory;
     } catch (error) {
-      console.error('❌ Erreur récupération historique:', error);
+      storageLog('Erreur récupération historique', error);
       return [];
     }
   }
 
-  // Données des compteurs avec validation
   async saveMeterData(deviceIP, data) {
     try {
       if (!deviceIP || !data) {
@@ -116,9 +112,9 @@ class StorageService {
         JSON.stringify(dataWithTimestamp)
       );
       
-      console.log(`💾 Données sauvegardées pour ${deviceIP}`);
+      storageLog(`Données sauvegardées pour ${deviceIP}`);
     } catch (error) {
-      console.error('❌ Erreur sauvegarde données compteur:', error);
+      storageLog('Erreur sauvegarde données compteur', error);
     }
   }
 
@@ -130,23 +126,22 @@ class StorageService {
       const parsedData = data ? JSON.parse(data) : null;
       
       if (parsedData) {
-        console.log(`📊 Données récupérées pour ${deviceIP}`);
+        storageLog(`Données récupérées pour ${deviceIP}`);
       }
       
       return parsedData;
     } catch (error) {
-      console.error('❌ Erreur récupération données compteur:', error);
+      storageLog('Erreur récupération données compteur', error);
       return null;
     }
   }
 
-  // Paramètres utilisateur
   async saveUserSettings(settings) {
     try {
       await AsyncStorage.setItem(this.KEYS.USER_SETTINGS, JSON.stringify(settings));
-      console.log('⚙️ Paramètres sauvegardés');
+      storageLog('Paramètres sauvegardés');
     } catch (error) {
-      console.error('❌ Erreur sauvegarde paramètres:', error);
+      storageLog('Erreur sauvegarde paramètres', error);
     }
   }
 
@@ -161,10 +156,10 @@ class StorageService {
       };
       
       const userSettings = settings ? { ...defaultSettings, ...JSON.parse(settings) } : defaultSettings;
-      console.log('⚙️ Paramètres récupérés');
+      storageLog('Paramètres récupérés');
       return userSettings;
     } catch (error) {
-      console.error('❌ Erreur récupération paramètres:', error);
+      storageLog('Erreur récupération paramètres', error);
       return {
         autoRefresh: true,
         refreshInterval: 5000,
@@ -174,7 +169,6 @@ class StorageService {
     }
   }
 
-  // Vider le cache
   async clearCache() {
     try {
       const keys = await AsyncStorage.getAllKeys();
@@ -183,9 +177,9 @@ class StorageService {
         key === this.KEYS.DEVICE_HISTORY
       );
       await AsyncStorage.multiRemove(cacheKeys);
-      console.log('🗑️ Cache vidé:', cacheKeys.length, 'éléments supprimés');
+      storageLog(`Cache vidé: ${cacheKeys.length} éléments supprimés`);
     } catch (error) {
-      console.error('❌ Erreur vidage cache:', error);
+      storageLog('Erreur vidage cache', error);
       throw error;
     }
   }

@@ -1,6 +1,6 @@
-// src/hooks/useDeviceScanner.js
 import { useState, useCallback } from 'react';
-import apiService from '../services/apiService'; // ✅ Ajouter cette ligne
+import apiService from '../services/apiService';
+import { scanLog } from '../config/appConfig';
 
 export const useDeviceScanner = () => {
   const [devices, setDevices] = useState([]);
@@ -12,9 +12,8 @@ export const useDeviceScanner = () => {
     setError(null);
     
     try {
-      console.log('🔍 Démarrage scan...');
+      scanLog('Démarrage scan...');
       
-      // ✅ Utiliser apiService au lieu de scan manuel
       const foundDevices = await apiService.scanNetwork();
       setDevices(foundDevices);
       
@@ -41,6 +40,6 @@ export const useDeviceScanner = () => {
     error,
     scanNetwork,
     stopScan,
-    startScan: scanNetwork, // Alias pour compatibilité
+    startScan: scanNetwork,
   };
 };

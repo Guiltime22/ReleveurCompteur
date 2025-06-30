@@ -5,6 +5,7 @@ import apiService from '../services/apiService';
 import storageService from '../services/storageService';
 import { COLORS } from '../styles/global/colors';
 import { TYPOGRAPHY } from '../styles/global/typography';
+import { connectionLog, dataLog, storageLog, devLog } from '../config/appConfig';
 
 const DeviceContext = createContext();
 
@@ -23,31 +24,31 @@ export const DeviceProvider = ({ children }) => {
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        console.log('🚀 Initialisation de l\'application...');
+        devLog('INIT', 'Initialisation de l\'application...');
         
         const userSettings = await storageService.getUserSettings();
-        console.log('📋 Paramètres utilisateur chargés:', userSettings);
+        storageLog('Paramètres utilisateur chargés', userSettings);
 
         const savedPassword = await storageService.getCredentials();
         const deviceHistory = await storageService.getDeviceHistory();
         
         if (savedPassword && deviceHistory.length > 0) {
-          console.log('🔄 Tentative de reconnexion automatique...');
+          connectionLog('Tentative de reconnexion automatique...');
           const lastDevice = deviceHistory[0];
 
           if (lastDevice && lastDevice.ip && lastDevice.serialNumber) {
             try {
               await connectToDeviceInternal(lastDevice, savedPassword, true);
-              console.log('✅ Reconnexion automatique réussie');
+              connectionLog('Reconnexion automatique réussie');
             } catch (error) {
-              console.log('❌ Reconnexion automatique échouée:', error.message);
+              connectionLog('Reconnexion automatique échouée', error.message);
             }
           }
         }
         
-        console.log('✅ Initialisation terminée');
+        devLog('INIT', 'Initialisation terminée');
       } catch (error) {
-        console.error('❌ Erreur d\'initialisation:', error);
+        devLog('INIT', 'Erreur d\'initialisation', error);
         setInitializationError(error.message);
       } finally {
         setTimeout(() => {
@@ -61,7 +62,7 @@ export const DeviceProvider = ({ children }) => {
 
   useEffect(() => {
     if (isConnected && connectedDevice && connectedDevice.ip) {
-      console.log('🔄 Démarrage auto-refresh des données');
+      connectionLog('Démarrage auto-refresh des données');
       const interval = setInterval(() => {
         fetchMeterDataInternal();
       }, 5000);
@@ -69,7 +70,7 @@ export const DeviceProvider = ({ children }) => {
       
       return () => {
         if (interval) {
-          console.log('⏹️ Arrêt auto-refresh des données');
+          connectionLog('Arrêt auto-refresh des données');
           clearInterval(interval);
         }
       };
@@ -87,26 +88,21 @@ export const DeviceProvider = ({ children }) => {
     }
     
     try {
-      console.log(`🔌 Connexion à ${device.serialNumber} (${device.ip})`);
-
+      connectionLog(`Connexion à ${device.serialNumber} (${device.ip})`);
       await apiService.connectToDevice(device, password);
       
       setIsConnected(true);
       setConnectedDevice(device);
       setError(null);
       
-      // Sauvegarder dans le cache
       await storageService.saveDeviceToHistory(device);
       await storageService.storeCredentials(password);
-      
-      // Récupérer les données initiales
       await fetchMeterDataInternal();
       
-      console.log('✅ Connexion réussie');
+      connectionLog('Connexion réussie');
       return true;
-      
     } catch (err) {
-      console.error('❌ Erreur de connexion:', err.message);
+      connectionLog('Erreur de connexion', err.message);
       if (!isSilent) {
         setError(err.message);
         Alert.alert('Erreur de connexion', err.message);
@@ -115,7 +111,6 @@ export const DeviceProvider = ({ children }) => {
     }
   };
 
-  // Fonction publique de connexion
   const connectToDevice = async (device, password) => {
     setIsLoading(true);
     try {
@@ -126,31 +121,26 @@ export const DeviceProvider = ({ children }) => {
     }
   };
 
-  // Fonction interne de récupération des données
   const fetchMeterDataInternal = async () => {
     if (!isConnected || !connectedDevice || !connectedDevice.ip) {
-      console.log('⚠️ Impossible de récupérer les données: pas connecté');
+      dataLog('Impossible de récupérer les données: pas connecté');
       return;
     }
     
     try {
       const data = await apiService.getMeterData();
       setMeterData(data);
-      
-      // Sauvegarder les données dans le cache
       await storageService.saveMeterData(connectedDevice.ip, data);
       
-      // Réinitialiser l'erreur si la récupération réussit
       if (error) {
         setError(null);
       }
     } catch (err) {
-      console.error('❌ Erreur récupération données:', err.message);
+      dataLog('Erreur récupération données', err.message);
       setError('Erreur lors de la récupération des données');
     }
   };
 
-  // Fonction publique de récupération des données
   const fetchMeterData = async () => {
     await fetchMeterDataInternal();
   };
@@ -164,60 +154,45 @@ export const DeviceProvider = ({ children }) => {
       Alert.alert('Erreur', 'Aucun équipement connecté');
       return;
     }
-
+    
     try {
       const newState = !meterData.powerState;
-      console.log(`🔌 Changement état alimentation: ${newState ? 'ON' : 'OFF'}`);
+      connectionLog(`Changement état alimentation: ${newState ? 'ON' : 'OFF'}`);
       
       await apiService.togglePower(newState);
-      
-      // Mettre à jour les données locales immédiatement
-      setMeterData(prev => ({
-        ...prev,
-        powerState: newState
-      }));
-      
-      // Rafraîchir les données après un délai
+      setMeterData(prev => ({ ...prev, powerState: newState }));
       setTimeout(fetchMeterDataInternal, 1000);
       
-      Alert.alert(
-        'Succès', 
-        `Compteur ${newState ? 'allumé' : 'éteint'} avec succès`
-      );
+      Alert.alert('Succès', `Compteur ${newState ? 'allumé' : 'éteint'} avec succès`);
     } catch (err) {
-      console.error('❌ Erreur toggle power:', err.message);
+      connectionLog('Erreur toggle power', err.message);
       Alert.alert('Erreur', 'Impossible de changer l\'état du compteur');
     }
   };
 
   const disconnect = async () => {
-    console.log('🔌 Déconnexion...');
+    connectionLog('Déconnexion...');
     
-    // Arrêter l'auto-refresh
     if (autoRefreshInterval) {
       clearInterval(autoRefreshInterval);
       setAutoRefreshInterval(null);
     }
     
-    // Reset tous les états
     setIsConnected(false);
     setConnectedDevice(null);
     setMeterData(null);
     setError(null);
     
-    // Supprimer les identifiants
     await storageService.removeCredentials();
-    
-    console.log('✅ Déconnexion terminée');
+    connectionLog('Déconnexion terminée');
   };
 
-  // Loading Screen pendant l'initialisation
   if (!isInitialized) {
     return (
       <View style={loadingStyles.container}>
         <View style={loadingStyles.content}>
           <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={loadingStyles.title}>Releveur Compteur</Text>
+          <Text style={loadingStyles.title}>ENERGYRIA</Text>
           <Text style={loadingStyles.subtitle}>Initialisation en cours...</Text>
           
           {initializationError && (
@@ -239,14 +214,12 @@ export const DeviceProvider = ({ children }) => {
   }
 
   const value = {
-    // États
     isConnected,
     isLoading,
     connectedDevice,
     meterData,
     error,
     
-    // Actions
     connectToDevice,
     fetchMeterData,
     togglePower,
@@ -261,7 +234,6 @@ export const DeviceProvider = ({ children }) => {
   );
 };
 
-// Hook personnalisé pour utiliser le contexte
 export const useDevice = () => {
   const context = useContext(DeviceContext);
   if (!context) {
@@ -270,7 +242,6 @@ export const useDevice = () => {
   return context;
 };
 
-// Styles pour l'écran de chargement
 const loadingStyles = {
   container: {
     flex: 1,

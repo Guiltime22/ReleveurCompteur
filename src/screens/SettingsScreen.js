@@ -142,10 +142,10 @@ export default function SettingsScreen({ navigation }) {
               <Ionicons name="flash" size={32} color={COLORS.primary} />
             </View>
             <View style={settingsScreenStyles.appDetails}>
-              <Text style={settingsScreenStyles.appName}>Releveur Compteur</Text>
+              <Text style={settingsScreenStyles.appName}>ENERGYRIA</Text>
               <Text style={settingsScreenStyles.appVersion}>Version 1.0.0</Text>
               <Text style={settingsScreenStyles.appDescription}>
-                Application de relevé de compteurs électriques
+                Application développée pour la surveillance et le contrôle de compteurs électriques intelligents.
               </Text>
             </View>
           </View>
@@ -229,7 +229,7 @@ export default function SettingsScreen({ navigation }) {
           />
         </View>
 
-        {/* À propos */}
+        {/* À propos
         <View style={settingsScreenStyles.section}>
           <Text style={settingsScreenStyles.sectionTitle}>À propos</Text>
           <View style={settingsScreenStyles.aboutContent}>
@@ -237,10 +237,10 @@ export default function SettingsScreen({ navigation }) {
               Application développée pour la surveillance et le contrôle de compteurs électriques intelligents.
             </Text>
             <Text style={settingsScreenStyles.aboutVersion}>
-              Version 1.0.0 • Build 2024.1
+              Version 1.0.0 • ENERGYRIA
             </Text>
           </View>
-        </View>
+        </View> */}
       </ScrollView>
     </View>
   );

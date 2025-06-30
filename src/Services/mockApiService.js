@@ -1,3 +1,5 @@
+import { connectionLog, dataLog, devLog, scanLog } from "../config/appConfig";
+
 class MockApiService {
   constructor() {
     this.devices = {
@@ -18,16 +20,15 @@ class MockApiService {
     this.powerState = true;
     this.fraudState = false;
     
-    console.log('🔧 MockApiService initialisé');
+    devLog('INIT', 'MockApiService initialisé');
   }
 
   async scanNetwork() {
-    console.log('🎭 MOCK: Scan réseau...');
+    scanLog('MOCK: Scan réseau...');
     const devices = [];
-    
-    // Scanner les IPs définies
+
     for (const ip of Object.keys(this.devices)) {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulation délai
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       const device = await this.detectDevice(ip);
       if (device) {
@@ -39,12 +40,12 @@ class MockApiService {
       }
     }
     
-    console.log(`✅ MOCK: ${devices.length} équipement(s) détecté(s)`);
+    scanLog(`MOCK: ${devices.length} équipement(s) détecté(s)`);
     return devices;
   }
 
   async connectToDevice(device, password) {
-    console.log(`🎭 MOCK: Connexion à ${device.ip} avec mot de passe: ${password}`);
+    connectionLog(`MOCK: Connexion à ${device.ip} avec mot de passe: [MASQUÉ]`);
     
     if (!this.devices[device.ip]) {
       throw new Error('Device non trouvé');
@@ -52,32 +53,32 @@ class MockApiService {
 
     // ✅ Vérifier les mots de passe valides pour le mock
     if (!['test123', 'admin'].includes(password)) {
-      console.log('❌ MOCK: Mot de passe incorrect:', password);
+      connectionLog('MOCK: Mot de passe incorrect');
       throw new Error('Mot de passe incorrect. Utilisez "test123" ou "admin"');
     }
 
     this.isConnected = true;
     this.connectedDevice = { ...device, ...this.devices[device.ip] };
-    console.log('✅ MOCK: Connexion établie');
+    connectionLog('MOCK: Connexion établie');
     return true;
   }
 
   async detectDevice(ip) {
-    console.log(`🔍 Scan device à ${ip}`);
+    scanLog(`Scan device à ${ip}`);
 
     await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1000));
     
     if (this.devices[ip]) {
-      console.log(`✅ Device trouvé à ${ip}:`, this.devices[ip].serialNumber);
+      scanLog(`Device trouvé à ${ip}: ${this.devices[ip].serialNumber}`);
       return this.devices[ip];
     }
     
-    console.log(`❌ Aucun device à ${ip}`);
+    scanLog(`Aucun device à ${ip}`);
     return null;
   }
 
   async authenticate(password) {
-    console.log('🎭 MOCK: Authentification avec:', password);
+    connectionLog('MOCK: Authentification avec: [MASQUÉ]');
     
     if (['test123', 'admin'].includes(password)) {
       return { success: true };
@@ -120,7 +121,7 @@ class MockApiService {
       timestamp: new Date().toISOString(),
     };
 
-    console.log('📊 Données réelles récupérées:', {
+    dataLog('Données réelles récupérées', {
       aEnergy: data.aEnergy.toFixed(1),
       rEnergy: data.rEnergy.toFixed(1),
       voltage: data.voltage.toFixed(1),
@@ -134,26 +135,27 @@ class MockApiService {
   }
 
   async togglePower(state) {
-    console.log(`🔌 Toggle power: ${state ? 'ON' : 'OFF'}`);
+    connectionLog(`MOCK: Toggle power: ${state ? 'ON' : 'OFF'}`);
     
     await new Promise(resolve => setTimeout(resolve, 800));
     this.powerState = state;
     
-    console.log('✅ État changé avec succès');
+    connectionLog('MOCK: État changé avec succès');
     return { success: true };
   }
 
   async simulateFraud() {
-    console.log('🚨 MOCK: Simulation de fraude');
+    dataLog('MOCK: Simulation de fraude');
     this.fraudState = true;
     return { success: true };
   }
 
   async clearFraud() {
-    console.log('✅ MOCK: Effacement alerte fraude');
+    dataLog('MOCK: Effacement alerte fraude');
     this.fraudState = false;
     return { success: true };
   }
+
 
   async getSecurityStatus() {
     await new Promise(resolve => setTimeout(resolve, 400));

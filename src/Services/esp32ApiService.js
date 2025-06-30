@@ -1,4 +1,4 @@
-import { APP_CONFIG, devLog } from '../config/appConfig';
+import { APP_CONFIG, connectionLog, devLog, dataLog } from '../config/appConfig';
 
 class ESP32ApiService {
   constructor() {
@@ -12,21 +12,20 @@ class ESP32ApiService {
 
   async connectToDevice(device, password) {
     try {
-      console.log(`📡 ESP32: Connexion à ${device.ip} (pas de mot de passe requis)`);
-
+      connectionLog(`ESP32: Connexion à ${device.ip} (pas de mot de passe requis)`);
       const response = await this.makeRequest('GET', '/');
       
       if (response) {
         this.isConnected = true;
         this.connectedDevice = device;
         this.baseURL = `http://${device.ip}`;
-        console.log('✅ ESP32: Connexion établie');
+        connectionLog('ESP32: Connexion établie');
         return true;
       }
       
       throw new Error('Impossible de se connecter à l\'ESP32');
     } catch (error) {
-      console.error('❌ ESP32: Erreur connexion:', error);
+      connectionLog('ESP32: Erreur connexion', error);
       throw new Error('Connexion échouée: ' + error.message);
     }
   }
@@ -63,14 +62,14 @@ class ESP32ApiService {
       const endpoint = `${APP_CONFIG.ESP32_CONFIG.ENDPOINTS.CONTROL}?arg=${command}`;
       await this.makeRequest('GET', endpoint);
       
-      console.log(`🔌 ESP32: Commande ${command} envoyée`);
+      connectionLog(`ESP32: Commande ${command} envoyée`);
       
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       return { success: true };
       
     } catch (error) {
-      console.error('❌ ESP32: Erreur contrôle relais:', error.message);
+      connectionLog('ESP32: Erreur contrôle', error);
       throw new Error('Impossible de contrôler le relais');
     }
   }
@@ -119,13 +118,13 @@ class ESP32ApiService {
 
   parseXMLResponse(xmlString) {
     try {
-      console.log('📄 XML brut reçu de l\'ESP32:', xmlString);
+      dataLog('XML brut reçu de l\'ESP32', xmlString);
       
       const extractValue = (tag) => {
         const regex = new RegExp(`<${tag}>(.*?)</${tag}>`, 'i');
         const match = xmlString.match(regex);
         const value = match ? match[1] : null;
-        console.log(`🔍 Tag ${tag}: "${value}"`);
+        dataLog('Tag extraction', `${tag}: "${value}"`);
         return value;
       };
 
@@ -147,11 +146,11 @@ class ESP32ApiService {
         }
       });
 
-      console.log('📊 Données ESP32 parsées:', data);
+      dataLog('Données ESP32 parsées', data);
       return data;
 
     } catch (error) {
-      console.error('❌ ESP32: Erreur parsing XML:', error.message);
+      dataLog('ESP32: Erreur parsing XML', error.message);
       throw new Error('Format de données invalide: ' + error.message);
     }
   }
