@@ -4,10 +4,10 @@
     "slug": "energyria",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/ENERGYRIA.jpg",
+    "icon": "./assets/ENERGYRIA.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/ENERGYRIA.jpg",
+      "image": "./assets/ENERGYRIA.png",
       "resizeMode": "contain"
     },
     "assetBundlePatterns": [
@@ -19,7 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/ENERGYRIA.jpg",
+        "foregroundImage": "./assets/ENERGYRIA.png",
         "backgroundColor": "#6366f1"
       },
       "permissions": [
@@ -30,7 +30,7 @@
       "package": "com.releveurcompteur.app"
     },
     "web": {
-      "favicon": "./assets/ENERGYRIA.jpg"
+      "favicon": "./assets/ENERGYRIA.png"
     },
     "extra": {
       "eas": {

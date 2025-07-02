@@ -94,7 +94,7 @@ class ESP32ApiService {
         options.body = body;
       }
 
-      devLog(`📡 ESP32: ${method} ${url}`);
+      devLog(`ESP32: ${method} ${url}`);
       
       const response = await fetch(url, options);
       clearTimeout(timeoutId);
@@ -129,19 +129,21 @@ class ESP32ApiService {
       };
 
       const data = {
-        aEnergy: parseFloat(extractValue('aenergy')) || 0,
-        rEnergy: parseFloat(extractValue('renergy')) || 0,
-        voltage: parseFloat(extractValue('voltage')) || 0,
-        current: parseFloat(extractValue('current')) || 0,
+        aEnergy: parseFloat(extractValue('aEnergy')) || 0,
+        rEnergy: parseFloat(extractValue('rEnergy')) || 0,
         powerF: parseFloat(extractValue('powerF')) || 0,
         frequency: parseFloat(extractValue('frequency')) || 0,
+        voltage: parseFloat(extractValue('voltage')) || 0,
+        current: parseFloat(extractValue('current')) || 0,
+        
         powerState: extractValue('relay') === '1',
         fraudState: extractValue('open') === 'Fraud Alert',
+        
         timestamp: new Date().toISOString(),
       };
 
       Object.keys(data).forEach(key => {
-        if (typeof data[key] === 'number' && key !== 'powerState') {
+        if (typeof data[key] === 'number' && key !== 'powerState' && key !== 'fraudState') {
           data[key] = parseFloat(data[key].toFixed(2));
         }
       });
@@ -157,9 +159,8 @@ class ESP32ApiService {
 
   async scanNetwork() {
     const devices = [];
-    const baseIP = '192.168.4.';
     
-    devLog('🔍 ESP32: Scan réseau...');
+    devLog('ESP32: Scan réseau...');
     
     const scanPromises = APP_CONFIG.ESP32_CONFIG.SCAN_RANGE.map(async (lastOctet) => {
       const ip = `${baseIP}${lastOctet}`;
@@ -187,7 +188,7 @@ class ESP32ApiService {
         }
         
       } catch (error) {
-        devLog(`❌ ESP32: ${ip} non accessible`);
+        devLog(`ESP32: ${ip} non accessible`);
       }
     });
 
@@ -200,7 +201,7 @@ class ESP32ApiService {
   disconnect() {
     this.isConnected = false;
     this.connectedDevice = null;
-    devLog('🔌 ESP32: Déconnexion');
+    devLog('ESP32: Déconnexion');
   }
 }
 

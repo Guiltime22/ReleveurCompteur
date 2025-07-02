@@ -10,7 +10,7 @@ import {
 } from '@env';
 
 export const APP_CONFIG = {
-  USE_MOCK_DATA: true,
+  USE_MOCK_DATA: false,
   
   ESP32_CONFIG: {
     BASE_URL: ESP32_BASE_URL,
