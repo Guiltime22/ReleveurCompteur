@@ -159,6 +159,7 @@ class ESP32ApiService {
 
   async scanNetwork() {
     const devices = [];
+    const baseIp = '192.168.4.';
     
     devLog('ESP32: Scan réseau...');
     
