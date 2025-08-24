@@ -150,7 +150,7 @@ class StorageService {
       const settings = await AsyncStorage.getItem(this.KEYS.USER_SETTINGS);
       const defaultSettings = {
         autoRefresh: true,
-        refreshInterval: 5000,
+        refreshInterval: 3000,
         notifications: true,
         theme: 'light',
       };
@@ -162,7 +162,7 @@ class StorageService {
       storageLog('Erreur récupération paramètres', error);
       return {
         autoRefresh: true,
-        refreshInterval: 5000,
+        refreshInterval: 3000,
         notifications: true,
         theme: 'light',
       };

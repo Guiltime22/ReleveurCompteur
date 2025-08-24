@@ -19,7 +19,7 @@ import { COLORS } from '../styles/global/colors';
 export default function SettingsScreen({ navigation }) {
   const [settings, setSettings] = useState({
     autoRefresh: true,
-    refreshInterval: 5000,
+    refreshInterval: 3000,
     theme: 'light',
   });
 
@@ -145,7 +145,8 @@ export default function SettingsScreen({ navigation }) {
               <Text style={settingsScreenStyles.appName}>ENERGYRIA</Text>
               <Text style={settingsScreenStyles.appVersion}>Version 1.0.0</Text>
               <Text style={settingsScreenStyles.appDescription}>
-                Application développée pour la surveillance et le contrôle de compteurs électriques intelligents.
+                Application développée pour la surveillance et le contrôle de compteurs électriques EnerGyria 
+                avec le nouveau firmware 4.0. Connexion automatique sécurisée sans mot de passe requis.
               </Text>
             </View>
           </View>

@@ -19,13 +19,12 @@ class UnifiedApiService {
     return APP_CONFIG.USE_MOCK_DATA ? 'MOCK' : 'ESP32';
   }
 
-  async connectToDevice(device, password) {
+  async connectToDevice(device, password = null) {
     const service = this.currentService;
-    devLog(`🔌 Connexion via ${this.currentMode}`);
-    
+    devLog(`🔌 Connexion directe via ${this.currentMode}`);
     try {
       const result = await service.connectToDevice(device, password);
-      devLog(`✅ Connexion ${this.currentMode} réussie`);
+      devLog(`✅ Connexion ${this.currentMode} réussie (sans authentification)`);
       return result;
     } catch (error) {
       devLog(`❌ Erreur connexion ${this.currentMode}`, error.message);

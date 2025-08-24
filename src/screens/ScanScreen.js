@@ -42,30 +42,13 @@ export default function ScanScreen({ navigation }) {
     setRefreshing(false);
   };
 
-  const handleDeviceSelect = (device) => {
-    setSelectedDevice(device);
-    setShowPasswordModal(true);
-    setPassword('');
-  };
-
-  const handleConnect = async () => {
-    connectionLog('Bouton connecter appuyé');
-    
+  const handleDeviceSelect = async (device) => {
+    connectionLog('Connexion directe au compteur EnerGyria');
     try {
-      if (APP_CONFIG.USE_MOCK_DATA) {
-        if (!password.trim()) {
-          Alert.alert('Erreur', 'Veuillez entrer le mot de passe');
-          return;
-        }
-      }
-
-      connectionLog('Tentative de connexion...');
-      const success = await connectToDevice(selectedDevice, password || 'no-password');
-      
+      connectionLog('Tentative de connexion automatique...');
+      const success = await connectToDevice(device);
       if (success) {
         connectionLog('Connexion réussie');
-        setShowPasswordModal(false);
-        setPassword('');
         navigation.navigate('Dashboard');
       }
     } catch (error) {
@@ -73,7 +56,6 @@ export default function ScanScreen({ navigation }) {
       Alert.alert('Erreur de connexion', error.message);
     }
   };
-
 
   if (isConnected) {
     return (
@@ -220,86 +202,6 @@ export default function ScanScreen({ navigation }) {
         )}
       </ScrollView>
 
-      <Modal
-        visible={showPasswordModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowPasswordModal(false)}
-      >
-        <View style={scanScreenStyles.modalOverlay}>
-          <View style={scanScreenStyles.modalContent}>
-            <View style={scanScreenStyles.modalHeader}>
-              <Text style={scanScreenStyles.modalTitle}>
-                Connexion au compteur
-              </Text>
-              <TouchableOpacity
-                onPress={() => setShowPasswordModal(false)}
-                style={scanScreenStyles.closeButton}
-              >
-                <Ionicons name="close" size={24} color={COLORS.medium} />
-              </TouchableOpacity>
-            </View>
-
-            {selectedDevice && (
-              <View style={scanScreenStyles.deviceInfo}>
-                <Text style={scanScreenStyles.deviceInfoTitle}>
-                  {selectedDevice.serialNumber}
-                </Text>
-                <Text style={scanScreenStyles.deviceInfoSubtitle}>
-                  IP: {selectedDevice.ip}
-                </Text>
-              </View>
-            )}
-
-            <View style={scanScreenStyles.passwordSection}>
-              <Text style={scanScreenStyles.inputLabel}>Mot de passe</Text>
-              <View style={scanScreenStyles.passwordInput}>
-                <TextInput
-                  style={scanScreenStyles.textInput}
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="Entrez le mot de passe"
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-                <TouchableOpacity
-                  style={scanScreenStyles.eyeButton}
-                  onPress={() => setShowPassword(!showPassword)}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons
-                    name={showPassword ? "eye-off" : "eye"}
-                    size={20}
-                    color={COLORS.medium}
-                  />
-                </TouchableOpacity>
-              </View>
-              <Text style={scanScreenStyles.passwordHint}>
-                💡 Mot de passe de test : "test123" ou "admin"
-              </Text>
-            </View>
-
-            <View style={scanScreenStyles.modalActions}>
-              <Button
-                title="Annuler"
-                onPress={() => setShowPasswordModal(false)}
-                variant="outline"
-                size="medium"
-                style={scanScreenStyles.modalButton}
-              />
-              <Button
-                title="Se connecter"
-                onPress={handleConnect}
-                variant="primary"
-                size="medium"
-                loading={isLoading}
-                style={scanScreenStyles.modalButton}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }

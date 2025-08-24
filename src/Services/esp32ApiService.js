@@ -4,27 +4,31 @@ class ESP32ApiService {
   constructor() {
     this.isConnected = false;
     this.connectedDevice = null;
-    this.baseURL = APP_CONFIG.ESP32_CONFIG.BASE_URL;
+    this.baseURL = `http://${APP_CONFIG.ESP32_CONFIG.BASE_IP}`;
     this.timeout = APP_CONFIG.ESP32_CONFIG.TIMEOUT;
     
-    devLog('📡 ESP32ApiService initialisé');
+    devLog('API', 'ESP32ApiService initialisé avec nouveau firmware');
   }
 
-  async connectToDevice(device, password) {
+  async connectToDevice(device, password = null) {
     try {
-      connectionLog(`ESP32: Connexion à ${device.ip} (pas de mot de passe requis)`);
+      connectionLog(`ESP32: Connexion directe à ${device.ip} (firmware 4.0 - aucun mot de passe requis)`);
+      this.baseURL = device.ip.startsWith('http') ? device.ip : `http://${device.ip}`;
+      console.log(`🔍 baseURL configuré: ${this.baseURL}`);
+      
       const response = await this.makeRequest('GET', '/');
+      console.log(`🔍 Réponse de connexion reçue`);
       
       if (response) {
         this.isConnected = true;
         this.connectedDevice = device;
-        this.baseURL = `http://${device.ip}`;
-        connectionLog('ESP32: Connexion établie');
+        connectionLog('ESP32: Connexion établie (aucune authentification nécessaire)');
         return true;
       }
       
-      throw new Error('Impossible de se connecter à l\'ESP32');
+      throw new Error('Impossible de se connecter au compteur');
     } catch (error) {
+      console.log(`❌ Erreur détaillée:`, error.message);
       connectionLog('ESP32: Erreur connexion', error);
       throw new Error('Connexion échouée: ' + error.message);
     }
@@ -32,29 +36,29 @@ class ESP32ApiService {
 
   async getMeterData() {
     if (!this.isConnected) {
-      throw new Error('Non connecté à l\'ESP32');
+      throw new Error('Non connecté au compteur');
     }
 
     try {
-      const xmlData = await this.makeRequest('GET', APP_CONFIG.ESP32_CONFIG.ENDPOINTS.DATA);
+      const jsonData = await this.makeRequest('GET', APP_CONFIG.ESP32_CONFIG.ENDPOINTS.DATA);
       
-      if (!xmlData) {
+      if (!jsonData) {
         throw new Error('Aucune donnée reçue');
       }
 
-      const parsedData = this.parseXMLResponse(xmlData);
-      devLog('ESP32: Données reçues', parsedData);
+      const parsedData = this.parseJSONResponse(jsonData);
+      devLog('DATA', 'Données reçues du nouveau firmware', parsedData);
       return parsedData;
       
     } catch (error) {
-      devLog('ESP32: Erreur récupération données', error.message);
-      throw new Error('Impossible de récupérer les données');
+      devLog('DATA', 'Erreur récupération données', error.message);
+      throw new Error('Impossible de récupérer les données: ' + error.message);
     }
   }
 
   async togglePower(state) {
     if (!this.isConnected) {
-      throw new Error('Non connecté à l\'ESP32');
+      throw new Error('Non connecté au compteur');
     }
 
     try {
@@ -62,15 +66,15 @@ class ESP32ApiService {
       const endpoint = `${APP_CONFIG.ESP32_CONFIG.ENDPOINTS.CONTROL}?arg=${command}`;
       await this.makeRequest('GET', endpoint);
       
-      connectionLog(`ESP32: Commande ${command} envoyée`);
-      
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      connectionLog(`ESP32: Commande ${command} envoyée au nouveau firmware`);
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       return { success: true };
       
     } catch (error) {
-      connectionLog('ESP32: Erreur contrôle', error);
-      throw new Error('Impossible de contrôler le relais');
+      connectionLog('ESP32: Erreur contrôle relais', error);
+      throw new Error('Impossible de contrôler le relais: ' + error.message);
     }
   }
 
@@ -85,7 +89,7 @@ class ESP32ApiService {
         method,
         signal: controller.signal,
         headers: {
-          'Accept': 'application/xml, text/xml, */*',
+          'Accept': 'application/json, text/html, */*',
           'Content-Type': 'application/x-www-form-urlencoded',
         },
       };
@@ -94,7 +98,7 @@ class ESP32ApiService {
         options.body = body;
       }
 
-      devLog(`ESP32: ${method} ${url}`);
+      devLog('API', `${method} ${url}`);
       
       const response = await fetch(url, options);
       clearTimeout(timeoutId);
@@ -116,93 +120,89 @@ class ESP32ApiService {
     }
   }
 
-  parseXMLResponse(xmlString) {
+  parseJSONResponse(jsonString) {
     try {
-      dataLog('XML brut reçu de l\'ESP32', xmlString);
+      dataLog('Données JSON brutes reçues du firmware', jsonString);
       
-      const extractValue = (tag) => {
-        const regex = new RegExp(`<${tag}>(.*?)</${tag}>`, 'i');
-        const match = xmlString.match(regex);
-        const value = match ? match[1] : null;
-        dataLog('Tag extraction', `${tag}: "${value}"`);
-        return value;
-      };
+      const data = JSON.parse(jsonString);
 
-      const data = {
-        aEnergy: parseFloat(extractValue('aEnergy')) || 0,
-        rEnergy: parseFloat(extractValue('rEnergy')) || 0,
-        powerF: parseFloat(extractValue('powerF')) || 0,
-        frequency: parseFloat(extractValue('frequency')) || 0,
-        voltage: parseFloat(extractValue('voltage')) || 0,
-        current: parseFloat(extractValue('current')) || 0,
-        
-        powerState: extractValue('relay') === '1',
-        fraudState: extractValue('open') === 'Fraud Alert',
+      const parsedData = {
+        aEnergy: parseFloat(data.aEnergy) || 0,
+        rEnergy: parseFloat(data.rEnergy) || 0,
+        powerF: parseFloat(data.powerF) || 0,
+        frequency: parseFloat(data.frequency) || 0,
+        voltage: parseFloat(data.voltage) || 0,
+        current: parseFloat(data.current) || 0,
+
+        d_time_v: parseFloat(data.d_time_v) || 0,
+        d_time_i: parseFloat(data.d_time_i) || 0,
+        sum_v2: parseFloat(data.sum_v2) || 0,
+        sum_i2: parseFloat(data.sum_i2) || 0,
+        delta_t: parseFloat(data.delta_t) || 0,
+        max_i: parseFloat(data.max_i) || 0,
+
+        powerState: true,
+        fraudState: data.open === 'Fraud Alert',
         
         timestamp: new Date().toISOString(),
       };
 
-      Object.keys(data).forEach(key => {
-        if (typeof data[key] === 'number' && key !== 'powerState' && key !== 'fraudState') {
-          data[key] = parseFloat(data[key].toFixed(2));
+      Object.keys(parsedData).forEach(key => {
+        if (typeof parsedData[key] === 'number' && key !== 'powerState' && key !== 'fraudState') {
+          parsedData[key] = parseFloat(parsedData[key].toFixed(2));
         }
       });
 
-      dataLog('Données ESP32 parsées', data);
-      return data;
+      dataLog('Données parsées du nouveau firmware', parsedData);
+      return parsedData;
 
     } catch (error) {
-      dataLog('ESP32: Erreur parsing XML', error.message);
-      throw new Error('Format de données invalide: ' + error.message);
+      dataLog('Erreur parsing JSON du nouveau firmware', error.message);
+      throw new Error('Format de données JSON invalide: ' + error.message);
     }
   }
 
   async scanNetwork() {
     const devices = [];
-    const baseIP = '192.168.4.';
     
-    devLog('ESP32: Scan réseau...');
-    
-    const scanPromises = APP_CONFIG.ESP32_CONFIG.SCAN_RANGE.map(async (lastOctet) => {
-      const ip = `${baseIP}${lastOctet}`;
-      
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
-        
-        const response = await fetch(`http://${ip}/`, {
-          signal: controller.signal,
-          method: 'HEAD',
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (response.ok) {
-          devices.push({
-            ip,
-            serialNumber: `ESP32_${ip.split('.').pop()}`,
-            deviceType: 'ELECTRIC_METER',
-            version: '1.0.0',
-            manufacturer: 'ESP32',
-            signalStrength: Math.floor(Math.random() * 40) + 60,
-          });
-        }
-        
-      } catch (error) {
-        devLog(`ESP32: ${ip} non accessible`);
-      }
-    });
+    devLog('SCAN', 'Scan réseau pour nouveau firmware Arduino...');
 
-    await Promise.all(scanPromises);
+    const ip = APP_CONFIG.ESP32_CONFIG.BASE_IP;
     
-    devLog(`✅ ESP32: ${devices.length} équipement(s) détecté(s)`);
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      
+      const response = await fetch(`http://${ip}/`, {
+        signal: controller.signal,
+        method: 'HEAD',
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        devices.push({
+          ip,
+          serialNumber: `ENERGYRIA_${Date.now().toString().slice(-6)}`,
+          deviceType: 'ELECTRIC_METER',
+          version: '4.0.0',
+          manufacturer: 'EnerGyria',
+          signalStrength: 95,
+        });
+      }
+      
+    } catch (error) {
+      devLog('SCAN', `${ip} non accessible - Vérifiez la connexion au WiFi "${APP_CONFIG.ESP32_CONFIG.AP_CONFIG.SSID}"`);
+    }
+
+    devLog('SCAN', `✅ Nouveau firmware: ${devices.length} équipement(s) détecté(s)`);
     return devices;
   }
 
   disconnect() {
     this.isConnected = false;
     this.connectedDevice = null;
-    devLog('ESP32: Déconnexion');
+    devLog('CONNECTION', 'Déconnexion du nouveau firmware');
   }
 }
 

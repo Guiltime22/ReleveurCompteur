@@ -5,86 +5,62 @@ class MockApiService {
     this.devices = {
       '192.168.4.1': {
         deviceType: "ELECTRIC_METER",
-        serialNumber: "CM-2024-001",
-        version: "2.1.0",
-        manufacturer: "TechMeter Pro"
-      },
-      '192.168.4.3': {
-        deviceType: "ELECTRIC_METER", 
-        serialNumber: "CM-2024-002",
-        version: "2.0.5",
-        manufacturer: "TechMeter Pro"
+        serialNumber: "ENERGYRIA-001",
+        version: "4.0.0",
+        manufacturer: "EnerGyria"
       }
     };
     this.isConnected = false;
     this.powerState = true;
     this.fraudState = false;
     
-    devLog('INIT', 'MockApiService initialisé');
+    devLog('INIT', 'MockApiService initialisé pour nouveau firmware');
   }
 
   async scanNetwork() {
-    scanLog('MOCK: Scan réseau...');
+    scanLog('MOCK: Scan réseau nouveau firmware...');
     const devices = [];
 
-    for (const ip of Object.keys(this.devices)) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const device = await this.detectDevice(ip);
-      if (device) {
-        devices.push({
-          ip,
-          ...device,
-          signalStrength: Math.floor(Math.random() * 40) + 60,
-        });
-      }
-    }
+    const ip = '192.168.4.1';
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    scanLog(`MOCK: ${devices.length} équipement(s) détecté(s)`);
+    const device = await this.detectDevice(ip);
+    if (device) {
+      devices.push({
+        ip,
+        ...device,
+        signalStrength: 95,
+      });
+    }
+
+    scanLog(`MOCK: ${devices.length} équipement(s) détecté(s) (nouveau firmware)`);
     return devices;
   }
 
-  async connectToDevice(device, password) {
-    connectionLog(`MOCK: Connexion à ${device.ip} avec mot de passe: [MASQUÉ]`);
+  async connectToDevice(device, password = null) {
+    connectionLog(`MOCK: Connexion directe nouveau firmware à ${device.ip}`);
     
     if (!this.devices[device.ip]) {
-      throw new Error('Device non trouvé');
-    }
-
-    // ✅ Vérifier les mots de passe valides pour le mock
-    if (!['test123', 'admin'].includes(password)) {
-      connectionLog('MOCK: Mot de passe incorrect');
-      throw new Error('Mot de passe incorrect. Utilisez "test123" ou "admin"');
+      throw new Error('Équipement non trouvé');
     }
 
     this.isConnected = true;
     this.connectedDevice = { ...device, ...this.devices[device.ip] };
-    connectionLog('MOCK: Connexion établie');
+    connectionLog('MOCK: Connexion établie (aucune authentification nécessaire)');
     return true;
   }
 
   async detectDevice(ip) {
-    scanLog(`Scan device à ${ip}`);
-
-    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1000));
+    scanLog(`MOCK: Scan device nouveau firmware à ${ip}`);
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     if (this.devices[ip]) {
-      scanLog(`Device trouvé à ${ip}: ${this.devices[ip].serialNumber}`);
+      scanLog(`MOCK: Device trouvé à ${ip}: ${this.devices[ip].serialNumber}`);
       return this.devices[ip];
     }
     
-    scanLog(`Aucun device à ${ip}`);
+    scanLog(`MOCK: Aucun device à ${ip}`);
     return null;
-  }
-
-  async authenticate(password) {
-    connectionLog('MOCK: Authentification avec: [MASQUÉ]');
-    
-    if (['test123', 'admin'].includes(password)) {
-      return { success: true };
-    } else {
-      return { success: false, error: 'Mot de passe incorrect' };
-    }
   }
 
   async getMeterData() {
@@ -101,13 +77,20 @@ class MockApiService {
       current: 12.2,
       powerF: 0.95,
       frequency: 50,
+
+      d_time_v: 1.5,
+      d_time_i: 2.1,
+      sum_v2: 52900.0,
+      sum_i2: 148.84,
+      delta_t: 3.6,
+      max_i: 15.2,
     };
 
     if (Math.random() < 0.05) {
       this.fraudState = !this.fraudState;
     }
 
-     const data = {
+    const data = {
       ...baseData,
       aEnergy: parseFloat((baseData.aEnergy + (Math.random() - 0.5) * 0.1).toFixed(2)),
       rEnergy: parseFloat((baseData.rEnergy + (Math.random() - 0.5) * 2).toFixed(2)),
@@ -115,58 +98,53 @@ class MockApiService {
       current: parseFloat((Math.max(0, baseData.current + (Math.random() - 0.5) * 2)).toFixed(2)),
       powerF: parseFloat((Math.max(0, Math.min(1, baseData.powerF + (Math.random() - 0.5) * 0.05))).toFixed(2)),
       frequency: parseFloat((baseData.frequency + (Math.random() - 0.5) * 0.2).toFixed(2)),
+ 
+      d_time_v: parseFloat((baseData.d_time_v + (Math.random() - 0.5) * 0.1).toFixed(2)),
+      d_time_i: parseFloat((baseData.d_time_i + (Math.random() - 0.5) * 0.1).toFixed(2)),
+      sum_v2: parseFloat((baseData.sum_v2 + (Math.random() - 0.5) * 100).toFixed(1)),
+      sum_i2: parseFloat((baseData.sum_i2 + (Math.random() - 0.5) * 5).toFixed(2)),
+      delta_t: parseFloat((baseData.delta_t + (Math.random() - 0.5) * 0.2).toFixed(1)),
+      max_i: parseFloat((Math.max(0, baseData.max_i + (Math.random() - 0.5) * 1)).toFixed(1)),
       
       powerState: this.powerState,
       fraudState: this.fraudState,
       timestamp: new Date().toISOString(),
     };
 
-    dataLog('Données réelles récupérées', {
+    dataLog('MOCK: Données simulées nouveau firmware', {
       aEnergy: data.aEnergy.toFixed(1),
-      rEnergy: data.rEnergy.toFixed(1),
       voltage: data.voltage.toFixed(1),
       current: data.current.toFixed(2),
-      powerF: data.powerF.toFixed(3),
-      frequency: data.frequency.toFixed(1),
       fraudState: data.fraudState
     });
-    
+
     return data;
   }
 
   async togglePower(state) {
-    connectionLog(`MOCK: Toggle power: ${state ? 'ON' : 'OFF'}`);
-    
+    connectionLog(`MOCK: Toggle power nouveau firmware: ${state ? 'ON' : 'OFF'}`);
     await new Promise(resolve => setTimeout(resolve, 800));
     this.powerState = state;
-    
-    connectionLog('MOCK: État changé avec succès');
+    connectionLog('MOCK: État relais changé avec succès (nouveau firmware)');
     return { success: true };
   }
 
   async simulateFraud() {
-    dataLog('MOCK: Simulation de fraude');
+    dataLog('MOCK: Simulation de fraude nouveau firmware');
     this.fraudState = true;
     return { success: true };
   }
 
   async clearFraud() {
-    dataLog('MOCK: Effacement alerte fraude');
+    dataLog('MOCK: Effacement alerte fraude nouveau firmware');
     this.fraudState = false;
     return { success: true };
   }
 
-
-  async getSecurityStatus() {
-    await new Promise(resolve => setTimeout(resolve, 400));
-    
-    const hasAlert = Math.random() < 0.05;
-    
-    return {
-      status: hasAlert ? 'alert' : 'secure',
-      message: hasAlert ? 'Tentative de manipulation détectée' : 'Système sécurisé',
-      lastCheck: new Date().toISOString(),
-    };
+  disconnect() {
+    this.isConnected = false;
+    this.connectedDevice = null;
+    devLog('CONNECTION', 'Déconnexion MOCK nouveau firmware');
   }
 }
 

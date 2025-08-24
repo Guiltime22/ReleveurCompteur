@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
-import mockApiService from '../services/mockApiService';
+
 import apiService from '../services/apiService';
 import storageService from '../services/storageService';
 import { COLORS } from '../styles/global/colors';
@@ -15,30 +15,28 @@ export const DeviceProvider = ({ children }) => {
   const [connectedDevice, setConnectedDevice] = useState(null);
   const [meterData, setMeterData] = useState(null);
   const [error, setError] = useState(null);
-
   const [isInitialized, setIsInitialized] = useState(false);
   const [initializationError, setInitializationError] = useState(null);
-
   const [autoRefreshInterval, setAutoRefreshInterval] = useState(null);
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
         devLog('INIT', 'Initialisation de l\'application...');
-        
         const userSettings = await storageService.getUserSettings();
         storageLog('Paramètres utilisateur chargés', userSettings);
 
-        const savedPassword = await storageService.getCredentials();
+        // TENTATIVE DE RECONNEXION AUTOMATIQUE SANS MOT DE PASSE
         const deviceHistory = await storageService.getDeviceHistory();
         
-        if (savedPassword && deviceHistory.length > 0) {
+        if (deviceHistory.length > 0) {
           connectionLog('Tentative de reconnexion automatique...');
           const lastDevice = deviceHistory[0];
-
+          
           if (lastDevice && lastDevice.ip && lastDevice.serialNumber) {
             try {
-              await connectToDeviceInternal(lastDevice, savedPassword, true);
+              // Plus besoin de savedPassword
+              await connectToDeviceInternal(lastDevice, true);
               connectionLog('Reconnexion automatique réussie');
             } catch (error) {
               connectionLog('Reconnexion automatique échouée', error.message);
@@ -65,9 +63,9 @@ export const DeviceProvider = ({ children }) => {
       connectionLog('Démarrage auto-refresh des données');
       const interval = setInterval(() => {
         fetchMeterDataInternal();
-      }, 5000);
+      }, 3000);
       setAutoRefreshInterval(interval);
-      
+
       return () => {
         if (interval) {
           connectionLog('Arrêt auto-refresh des données');
@@ -82,23 +80,26 @@ export const DeviceProvider = ({ children }) => {
     }
   }, [isConnected, connectedDevice]);
 
-  const connectToDeviceInternal = async (device, password, isSilent = false) => {
+  // CONNEXION INTERNE SANS MOT DE PASSE
+  const connectToDeviceInternal = async (device, isSilent = false) => {
     if (!device || !device.ip) {
       throw new Error('Équipement invalide');
     }
-    
+
     try {
-      connectionLog(`Connexion à ${device.serialNumber} (${device.ip})`);
-      await apiService.connectToDevice(device, password);
+      connectionLog(`Connexion à ${device.serialNumber} (${device.ip}) - Aucun mot de passe requis`);
+      
+      // CONNEXION SANS PARAMÈTRE PASSWORD
+      await apiService.connectToDevice(device);
       
       setIsConnected(true);
       setConnectedDevice(device);
       setError(null);
       
+      // Sauvegarde dans l'historique (plus de credentials à sauvegarder)
       await storageService.saveDeviceToHistory(device);
-      await storageService.storeCredentials(password);
-      await fetchMeterDataInternal();
       
+      await fetchMeterDataInternal();
       connectionLog('Connexion réussie');
       return true;
     } catch (err) {
@@ -111,10 +112,11 @@ export const DeviceProvider = ({ children }) => {
     }
   };
 
-  const connectToDevice = async (device, password) => {
+  // API PUBLIQUE - CONNEXION SANS PARAMÈTRE PASSWORD
+  const connectToDevice = async (device) => {
     setIsLoading(true);
     try {
-      const result = await connectToDeviceInternal(device, password, false);
+      const result = await connectToDeviceInternal(device, false);
       return result;
     } finally {
       setIsLoading(false);
@@ -126,7 +128,7 @@ export const DeviceProvider = ({ children }) => {
       dataLog('Impossible de récupérer les données: pas connecté');
       return;
     }
-    
+
     try {
       const data = await apiService.getMeterData();
       setMeterData(data);
@@ -154,15 +156,13 @@ export const DeviceProvider = ({ children }) => {
       Alert.alert('Erreur', 'Aucun équipement connecté');
       return;
     }
-    
+
     try {
       const newState = !meterData.powerState;
       connectionLog(`Changement état alimentation: ${newState ? 'ON' : 'OFF'}`);
-      
       await apiService.togglePower(newState);
       setMeterData(prev => ({ ...prev, powerState: newState }));
       setTimeout(fetchMeterDataInternal, 1000);
-      
       Alert.alert('Succès', `Compteur ${newState ? 'allumé' : 'éteint'} avec succès`);
     } catch (err) {
       connectionLog('Erreur toggle power', err.message);
@@ -172,18 +172,17 @@ export const DeviceProvider = ({ children }) => {
 
   const disconnect = async () => {
     connectionLog('Déconnexion...');
-    
     if (autoRefreshInterval) {
       clearInterval(autoRefreshInterval);
       setAutoRefreshInterval(null);
     }
-    
+
     setIsConnected(false);
     setConnectedDevice(null);
     setMeterData(null);
     setError(null);
     
-    await storageService.removeCredentials();
+    // PLUS BESOIN DE SUPPRIMER LES CREDENTIALS
     connectionLog('Déconnexion terminée');
   };
 
@@ -205,9 +204,7 @@ export const DeviceProvider = ({ children }) => {
         </View>
         
         <View style={loadingStyles.footer}>
-          <Text style={loadingStyles.footerText}>
-            Version 1.0.0
-          </Text>
+          <Text style={loadingStyles.footerText}>Version 4.0.0</Text>
         </View>
       </View>
     );
@@ -219,8 +216,7 @@ export const DeviceProvider = ({ children }) => {
     connectedDevice,
     meterData,
     error,
-    
-    connectToDevice,
+    connectToDevice,  // Plus de paramètre password
     fetchMeterData,
     togglePower,
     disconnect,
@@ -242,6 +238,7 @@ export const useDevice = () => {
   return context;
 };
 
+// CONSERVATION COMPLÈTE DES STYLES EXISTANTS
 const loadingStyles = {
   container: {
     flex: 1,

@@ -69,18 +69,12 @@ export default function HistoryScreen({ navigation }) {
           text: 'Reconnecter',
           onPress: async () => {
             try {
-              const savedPassword = await storageService.getCredentials();
-              if (savedPassword) {
-                const success = await connectToDevice(device, savedPassword);
-                if (success) {
-                  navigation.navigate('Dashboard');
-                }
-              } else {
-                navigation.navigate('Scanner', { preSelectedDevice: device });
+              const success = await connectToDevice(device);
+              if (success) {
+                navigation.navigate('Dashboard');
               }
             } catch (error) {
-              Alert.alert('Erreur', 'Impossible de se reconnecter automatiquement. Veuillez saisir le mot de passe.');
-              navigation.navigate('Scanner', { preSelectedDevice: device });
+              Alert.alert('Erreur', 'Impossible de se reconnecter: ' + error.message);
             }
           },
         },
