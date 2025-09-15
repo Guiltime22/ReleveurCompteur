@@ -73,17 +73,13 @@ class MockApiService {
     const baseData = {
       aEnergy: 1247.5,
       rEnergy: 89.2,
+      aPower: 1500.25,
+      rPower: 450.75,       
       voltage: 230,
       current: 12.2,
       powerF: 0.95,
       frequency: 50,
-
-      d_time_v: 1.5,
-      d_time_i: 2.1,
-      sum_v2: 52900.0,
-      sum_i2: 148.84,
-      delta_t: 3.6,
-      max_i: 15.2,
+      phase: 0.87,
     };
 
     if (Math.random() < 0.05) {
@@ -94,17 +90,17 @@ class MockApiService {
       ...baseData,
       aEnergy: parseFloat((baseData.aEnergy + (Math.random() - 0.5) * 0.1).toFixed(2)),
       rEnergy: parseFloat((baseData.rEnergy + (Math.random() - 0.5) * 2).toFixed(2)),
+      aPower: parseFloat((baseData.aPower + (Math.random() - 0.5) * 50).toFixed(2)),
+      rPower: parseFloat((baseData.rPower + (Math.random() - 0.5) * 20).toFixed(2)),
       voltage: parseFloat((baseData.voltage + (Math.random() - 0.5) * 5).toFixed(2)),
       current: parseFloat((Math.max(0, baseData.current + (Math.random() - 0.5) * 2)).toFixed(2)),
       powerF: parseFloat((Math.max(0, Math.min(1, baseData.powerF + (Math.random() - 0.5) * 0.05))).toFixed(2)),
       frequency: parseFloat((baseData.frequency + (Math.random() - 0.5) * 0.2).toFixed(2)),
- 
-      d_time_v: parseFloat((baseData.d_time_v + (Math.random() - 0.5) * 0.1).toFixed(2)),
-      d_time_i: parseFloat((baseData.d_time_i + (Math.random() - 0.5) * 0.1).toFixed(2)),
-      sum_v2: parseFloat((baseData.sum_v2 + (Math.random() - 0.5) * 100).toFixed(1)),
-      sum_i2: parseFloat((baseData.sum_i2 + (Math.random() - 0.5) * 5).toFixed(2)),
-      delta_t: parseFloat((baseData.delta_t + (Math.random() - 0.5) * 0.2).toFixed(1)),
-      max_i: parseFloat((Math.max(0, baseData.max_i + (Math.random() - 0.5) * 1)).toFixed(1)),
+      phase: parseFloat((baseData.phase + (Math.random() - 0.5) * 0.1).toFixed(2)),
+
+      serialNumber: "ENERGYRIA-001",
+      dateTime: new Date().toISOString(),
+      fraudAlertDateTime: this.fraudState ? new Date().toISOString() : null,
       
       powerState: this.powerState,
       fraudState: this.fraudState,
@@ -115,6 +111,7 @@ class MockApiService {
       aEnergy: data.aEnergy.toFixed(1),
       voltage: data.voltage.toFixed(1),
       current: data.current.toFixed(2),
+      powerState: data.powerState,
       fraudState: data.fraudState
     });
 

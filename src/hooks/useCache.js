@@ -9,9 +9,8 @@ export const useCache = () => {
     try {
       const history = await storageService.getDeviceHistory();
       setDeviceCount(history.length);
-      
-      // Estimation simple de la taille du cache
-      const estimatedSize = history.length * 2; // 2KB par device estimé
+
+      const estimatedSize = history.length * 2;
       setCacheSize(estimatedSize);
     } catch (error) {
       console.error('Erreur calcul cache:', error);

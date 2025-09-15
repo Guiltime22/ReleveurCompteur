@@ -223,6 +223,10 @@ export const dashboardScreenStyles = StyleSheet.create({
     alignItems: 'center',
   },
 
+  modalScrollView: {
+    maxHeight: 450,
+  },
+
   modalContent: {
     backgroundColor: COLORS.white,
     borderRadius: 20,
@@ -248,31 +252,43 @@ export const dashboardScreenStyles = StyleSheet.create({
   },
 
   dataSection: {
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.md,
   },
 
   sectionTitle: {
     ...TYPOGRAPHY.h4,
-    color: COLORS.dark,
+    color: COLORS.primary,
+    marginTop: SPACING.md,
     marginBottom: SPACING.md,
+    paddingBottom: SPACING.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    fontWeight: '600',
   },
 
   dataRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
     paddingVertical: SPACING.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomWidth: 0.5,
+    borderBottomColor: COLORS.lightGray,
+    minHeight: 40,
   },
 
   dataLabel: {
     ...TYPOGRAPHY.body,
     color: COLORS.medium,
+    flex: 1,
+    paddingRight: SPACING.sm,
   },
 
   dataValue: {
     ...TYPOGRAPHY.bodyMedium,
     color: COLORS.dark,
+    textAlign: 'right',
+    flex: 1,
+    fontWeight: '500',
   },
 
   closeButton: {

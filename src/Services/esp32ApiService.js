@@ -63,15 +63,12 @@ class ESP32ApiService {
 
     try {
       const command = state ? 'ON' : 'OFF';
-      const endpoint = `${APP_CONFIG.ESP32_CONFIG.ENDPOINTS.CONTROL}?arg=${command}`;
+      const endpoint = `/relay?RelayState=${command}&relayCode=00000`;
+      
       await this.makeRequest('GET', endpoint);
-      
       connectionLog(`ESP32: Commande ${command} envoyée au nouveau firmware`);
-
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
       return { success: true };
-      
     } catch (error) {
       connectionLog('ESP32: Erreur contrôle relais', error);
       throw new Error('Impossible de contrôler le relais: ' + error.message);
@@ -134,16 +131,16 @@ class ESP32ApiService {
         voltage: parseFloat(data.voltage) || 0,
         current: parseFloat(data.current) || 0,
 
-        d_time_v: parseFloat(data.d_time_v) || 0,
-        d_time_i: parseFloat(data.d_time_i) || 0,
-        sum_v2: parseFloat(data.sum_v2) || 0,
-        sum_i2: parseFloat(data.sum_i2) || 0,
-        delta_t: parseFloat(data.delta_t) || 0,
-        max_i: parseFloat(data.max_i) || 0,
-
-        powerState: true,
-        fraudState: data.open === 'Fraud Alert',
+        aPower: parseFloat(data.aPower) || 0,
+        rPower: parseFloat(data.rPower) || 0,
+        phase: parseFloat(data.phase) || 0,
+        serialNumber: data.num || 'UNKNOWN',
+        dateTime: data.DateTime || null,
+        fraudAlertDateTime: data.fAlertDateTime || null,
         
+        powerState: data.relay === "on",
+        
+        fraudState: data.fAlert === 'Fraud Alert',
         timestamp: new Date().toISOString(),
       };
 

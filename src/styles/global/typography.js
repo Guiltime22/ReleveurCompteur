@@ -1,5 +1,4 @@
 export const TYPOGRAPHY = {
-  // Headers
   h1: {
     fontSize: 32,
     fontWeight: '700',
@@ -20,8 +19,7 @@ export const TYPOGRAPHY = {
     fontWeight: '600',
     lineHeight: 24,
   },
-  
-  // Body
+
   body: {
     fontSize: 16,
     fontWeight: '400',
@@ -37,8 +35,7 @@ export const TYPOGRAPHY = {
     fontWeight: '600',
     lineHeight: 24,
   },
-  
-  // Small
+
   caption: {
     fontSize: 14,
     fontWeight: '400',
@@ -54,8 +51,7 @@ export const TYPOGRAPHY = {
     fontWeight: '400',
     lineHeight: 16,
   },
-  
-  // Labels
+
   label: {
     fontSize: 14,
     fontWeight: '600',

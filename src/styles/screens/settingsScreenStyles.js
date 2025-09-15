@@ -12,7 +12,6 @@ export const settingsScreenStyles = StyleSheet.create({
     paddingTop: HEADER_HEIGHT,
   },
 
-  // Header fixe compact
   header: {
     backgroundColor: COLORS.primary,
     paddingTop: SPACING.xl,
@@ -65,7 +64,6 @@ export const settingsScreenStyles = StyleSheet.create({
     lineHeight: 16,
   },
 
-  // Contenu scrollable
   scrollView: {
     flex: 1,
   },
@@ -76,7 +74,6 @@ export const settingsScreenStyles = StyleSheet.create({
     paddingBottom: 100,
   },
 
-  // Sections
   section: {
     backgroundColor: COLORS.white,
     borderRadius: 16,
@@ -91,7 +88,6 @@ export const settingsScreenStyles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
 
-  // App info
   appInfoSection: {
     backgroundColor: COLORS.white,
     borderRadius: 16,
@@ -137,7 +133,6 @@ export const settingsScreenStyles = StyleSheet.create({
     lineHeight: 18,
   },
 
-  // Device connecté
   deviceConnected: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -172,7 +167,6 @@ export const settingsScreenStyles = StyleSheet.create({
     color: COLORS.medium,
   },
 
-  // Settings items
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -220,7 +214,6 @@ export const settingsScreenStyles = StyleSheet.create({
     marginLeft: SPACING.md,
   },
 
-  // Cache info
   cacheInfo: {
     backgroundColor: COLORS.light,
     borderRadius: 12,
@@ -248,7 +241,6 @@ export const settingsScreenStyles = StyleSheet.create({
     color: COLORS.medium,
   },
 
-  // About
   aboutContent: {
     alignItems: 'center',
   },
@@ -267,7 +259,6 @@ export const settingsScreenStyles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Buttons
   actionButton: {
     marginBottom: SPACING.md,
   },

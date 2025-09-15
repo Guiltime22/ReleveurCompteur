@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ActivityIndicator, Alert, AppState } from 'react-native';
 
 import apiService from '../services/apiService';
 import storageService from '../services/storageService';
@@ -23,26 +23,14 @@ export const DeviceProvider = ({ children }) => {
     const initializeApp = async () => {
       try {
         devLog('INIT', 'Initialisation de l\'application...');
+
+        if (isConnected) {
+          disconnect();
+          console.log('🔄 App redémarrée - Réinitialisation de la connexion');
+        }
+        
         const userSettings = await storageService.getUserSettings();
         storageLog('Paramètres utilisateur chargés', userSettings);
-
-        // TENTATIVE DE RECONNEXION AUTOMATIQUE SANS MOT DE PASSE
-        const deviceHistory = await storageService.getDeviceHistory();
-        
-        if (deviceHistory.length > 0) {
-          connectionLog('Tentative de reconnexion automatique...');
-          const lastDevice = deviceHistory[0];
-          
-          if (lastDevice && lastDevice.ip && lastDevice.serialNumber) {
-            try {
-              // Plus besoin de savedPassword
-              await connectToDeviceInternal(lastDevice, true);
-              connectionLog('Reconnexion automatique réussie');
-            } catch (error) {
-              connectionLog('Reconnexion automatique échouée', error.message);
-            }
-          }
-        }
         
         devLog('INIT', 'Initialisation terminée');
       } catch (error) {
@@ -57,6 +45,7 @@ export const DeviceProvider = ({ children }) => {
 
     initializeApp();
   }, []);
+
 
   useEffect(() => {
     if (isConnected && connectedDevice && connectedDevice.ip) {
@@ -80,7 +69,6 @@ export const DeviceProvider = ({ children }) => {
     }
   }, [isConnected, connectedDevice]);
 
-  // CONNEXION INTERNE SANS MOT DE PASSE
   const connectToDeviceInternal = async (device, isSilent = false) => {
     if (!device || !device.ip) {
       throw new Error('Équipement invalide');
@@ -88,15 +76,13 @@ export const DeviceProvider = ({ children }) => {
 
     try {
       connectionLog(`Connexion à ${device.serialNumber} (${device.ip}) - Aucun mot de passe requis`);
-      
-      // CONNEXION SANS PARAMÈTRE PASSWORD
+
       await apiService.connectToDevice(device);
       
       setIsConnected(true);
       setConnectedDevice(device);
       setError(null);
-      
-      // Sauvegarde dans l'historique (plus de credentials à sauvegarder)
+
       await storageService.saveDeviceToHistory(device);
       
       await fetchMeterDataInternal();
@@ -112,7 +98,6 @@ export const DeviceProvider = ({ children }) => {
     }
   };
 
-  // API PUBLIQUE - CONNEXION SANS PARAMÈTRE PASSWORD
   const connectToDevice = async (device) => {
     setIsLoading(true);
     try {
@@ -160,9 +145,15 @@ export const DeviceProvider = ({ children }) => {
     try {
       const newState = !meterData.powerState;
       connectionLog(`Changement état alimentation: ${newState ? 'ON' : 'OFF'}`);
+      
       await apiService.togglePower(newState);
+
       setMeterData(prev => ({ ...prev, powerState: newState }));
-      setTimeout(fetchMeterDataInternal, 1000);
+
+      setTimeout(async () => {
+        await fetchMeterDataInternal();
+      }, 500);
+      
       Alert.alert('Succès', `Compteur ${newState ? 'allumé' : 'éteint'} avec succès`);
     } catch (err) {
       connectionLog('Erreur toggle power', err.message);
@@ -181,8 +172,7 @@ export const DeviceProvider = ({ children }) => {
     setConnectedDevice(null);
     setMeterData(null);
     setError(null);
-    
-    // PLUS BESOIN DE SUPPRIMER LES CREDENTIALS
+
     connectionLog('Déconnexion terminée');
   };
 
@@ -216,7 +206,7 @@ export const DeviceProvider = ({ children }) => {
     connectedDevice,
     meterData,
     error,
-    connectToDevice,  // Plus de paramètre password
+    connectToDevice,
     fetchMeterData,
     togglePower,
     disconnect,
@@ -238,7 +228,6 @@ export const useDevice = () => {
   return context;
 };
 
-// CONSERVATION COMPLÈTE DES STYLES EXISTANTS
 const loadingStyles = {
   container: {
     flex: 1,

@@ -64,7 +64,6 @@ export const scanScreenStyles = StyleSheet.create({
     lineHeight: 16,
   },
 
-  // Contenu scrollable
   scrollView: {
     flex: 1,
   },
@@ -75,7 +74,6 @@ export const scanScreenStyles = StyleSheet.create({
     paddingBottom: 100,
   },
 
-  // Instructions
   instructionsCard: {
     backgroundColor: COLORS.white,
     borderRadius: 12,
@@ -97,7 +95,6 @@ export const scanScreenStyles = StyleSheet.create({
     flex: 1,
   },
 
-  // État connecté
   connectedState: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -123,7 +120,6 @@ export const scanScreenStyles = StyleSheet.create({
     marginTop: SPACING.md,
   },
 
-  // Status sections
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -151,7 +147,6 @@ export const scanScreenStyles = StyleSheet.create({
     marginTop: SPACING.md,
   },
 
-  // Devices section
   devicesSection: {
     marginBottom: SPACING.lg,
   },
@@ -186,7 +181,6 @@ export const scanScreenStyles = StyleSheet.create({
     marginBottom: SPACING.sm,
   },
 
-  // État vide
   emptyState: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -207,7 +201,6 @@ export const scanScreenStyles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  // Modal styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

@@ -74,7 +74,6 @@ export const historyScreenStyles = StyleSheet.create({
     lineHeight: 16,
   },
 
-  // Contenu scrollable
   scrollView: {
     flex: 1,
   },
@@ -85,7 +84,6 @@ export const historyScreenStyles = StyleSheet.create({
     paddingBottom: 100,
   },
 
-  // États et cartes
   emptyState: {
     alignItems: 'center',
     paddingVertical: SPACING.xxl,

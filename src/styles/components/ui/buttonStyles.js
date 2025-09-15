@@ -17,7 +17,6 @@ export const buttonStyles = StyleSheet.create({
     elevation: 2,
   },
   
-  // Variants
   primary: {
     backgroundColor: COLORS.primary,
   },
@@ -41,8 +40,7 @@ export const buttonStyles = StyleSheet.create({
   ghost: {
     backgroundColor: 'transparent',
   },
-  
-  // Sizes
+
   small: {
     height: 36,
     paddingHorizontal: SPACING.md,
@@ -56,7 +54,6 @@ export const buttonStyles = StyleSheet.create({
     paddingHorizontal: SPACING.xl,
   },
   
-  // Text styles
   text: {
     ...TYPOGRAPHY.bodySemiBold,
   },
@@ -81,8 +78,7 @@ export const buttonStyles = StyleSheet.create({
   ghostText: {
     color: COLORS.primary,
   },
-  
-  // Text sizes
+
   smallText: {
     ...TYPOGRAPHY.captionMedium,
   },

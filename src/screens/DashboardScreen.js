@@ -302,51 +302,154 @@ export default function DashboardScreen({ navigation }) {
         )}
       </ScrollView>
 
-      <Modal
-        visible={showDataModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowDataModal(false)}
-      >
-        <View style={dashboardScreenStyles.modalOverlay}>
-          <View style={dashboardScreenStyles.modalContent}>
-            <View style={dashboardScreenStyles.modalHeader}>
-              <Text style={dashboardScreenStyles.modalTitle}>
-                Données du Compteur
-              </Text>
-              <TouchableOpacity onPress={() => setShowDataModal(false)}>
-                <Ionicons name="close" size={24} color={COLORS.medium} />
-              </TouchableOpacity>
-            </View>
+    <Modal
+      visible={showDataModal}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={() => setShowDataModal(false)}
+    >
+      <View style={dashboardScreenStyles.modalOverlay}>
+        <View style={dashboardScreenStyles.modalContent}>
+          <View style={dashboardScreenStyles.modalHeader}>
+            <Text style={dashboardScreenStyles.modalTitle}>
+              Données du Compteur
+            </Text>
+            <TouchableOpacity onPress={() => setShowDataModal(false)}>
+              <Ionicons name="close" size={24} color={COLORS.text} />
+            </TouchableOpacity>
+          </View>
 
+          <ScrollView 
+            style={dashboardScreenStyles.modalScrollView}
+            showsVerticalScrollIndicator={true}
+            nestedScrollEnabled={true}
+          >
+            <Text style={dashboardScreenStyles.sectionTitle}>
+              Mesures Électriques Principales
+            </Text>
             <View style={dashboardScreenStyles.dataSection}>
-              <Text style={dashboardScreenStyles.sectionTitle}>
-                Mesures Électriques
-              </Text>
               {[
                 { label: 'Énergie Active', value: `${meterData?.aEnergy?.toFixed(1) || 0} kWh` },
-                { label: 'Énergie Réactive', value: `${meterData?.rEnergy?.toFixed(1) || 0} kVArh` },
-                { label: 'Tension', value: `${meterData?.voltage || 0} V` },
-                { label: 'Courant', value: `${meterData?.current?.toFixed(2) || 0} A` },
-                { label: 'Facteur de puissance', value: meterData?.powerF?.toFixed(2) || '0' },
-                { label: 'Fréquence', value: `${meterData?.frequency || 0} Hz` },
+                { label: 'Énergie Réactive', value: `${meterData?.rEnergy?.toFixed(1) || 0} kVArh`},
+                { label: 'Tension', value: `${meterData?.voltage || 0} V`},
+                { label: 'Courant', value: `${meterData?.current?.toFixed(2) || 0} A`},
+                { label: 'Facteur de puissance', value: meterData?.powerF?.toFixed(2) || '0'},
+                { label: 'Fréquence', value: `${meterData?.frequency || 0} Hz`},
               ].map((item, index) => (
                 <View key={index} style={dashboardScreenStyles.dataRow}>
-                  <Text style={dashboardScreenStyles.dataLabel}>{item.label}</Text>
+                  <Text style={dashboardScreenStyles.dataLabel}>
+                    {item.label}
+                  </Text>
                   <Text style={dashboardScreenStyles.dataValue}>{item.value}</Text>
                 </View>
               ))}
             </View>
 
-            <TouchableOpacity
-              style={dashboardScreenStyles.closeButton}
-              onPress={() => setShowDataModal(false)}
-            >
-              <Text style={dashboardScreenStyles.closeButtonText}>Fermer</Text>
-            </TouchableOpacity>
-          </View>
+            <Text style={dashboardScreenStyles.sectionTitle}>
+              Puissances
+            </Text>
+            <View style={dashboardScreenStyles.dataSection}>
+              {[
+                { label: 'Puissance Active', value: `${meterData?.aPower?.toFixed(1) || 0} W`},
+                { label: 'Puissance Réactive', value: `${meterData?.rPower?.toFixed(1) || 0} VAR`},
+                { label: 'Phase', value: `${meterData?.phase?.toFixed(2) || 0}°`},
+              ].map((item, index) => (
+                <View key={index} style={dashboardScreenStyles.dataRow}>
+                  <Text style={dashboardScreenStyles.dataLabel}>
+                    {item.label}
+                  </Text>
+                  <Text style={dashboardScreenStyles.dataValue}>{item.value}</Text>
+                </View>
+              ))}
+            </View>
+
+            <Text style={dashboardScreenStyles.sectionTitle}>
+              Informations Système
+            </Text>
+            <View style={dashboardScreenStyles.dataSection}>
+              {[
+                { label: 'Numéro de Série', value: meterData?.serialNumber || 'N/A'},
+                { label: 'État Relais', value: meterData?.powerState ? 'Activé' : 'Désactivé'},
+                { label: 'Date/Heure', value: meterData?.dateTime ? 
+                  new Date(meterData.dateTime).toLocaleString() : 'N/A'},
+              ].map((item, index) => (
+                <View key={index} style={dashboardScreenStyles.dataRow}>
+                  <Text style={dashboardScreenStyles.dataLabel}>
+                    {item.label}
+                  </Text>
+                  <Text style={dashboardScreenStyles.dataValue}>{item.value}</Text>
+                </View>
+              ))}
+            </View>
+
+            {(meterData?.fraudState || meterData?.fraudAlertDateTime) && (
+              <>
+                <Text style={[dashboardScreenStyles.sectionTitle, { color: COLORS.danger }]}>
+                  Alerte Sécurité
+                </Text>
+                <View style={[dashboardScreenStyles.dataSection, { backgroundColor: COLORS.danger + '10', borderRadius: 8, padding: SPACING.md }]}>
+                  {[
+                    { label: 'État Fraude', value: meterData?.fraudState ? 'FRAUDE DÉTECTÉE' : 'NORMAL' },
+                    ...(meterData?.fraudAlertDateTime ? [{
+                      label: 'Date Alerte', 
+                      value: new Date(meterData.fraudAlertDateTime).toLocaleString(),
+                      icon: '📅'
+                    }] : [])
+                  ].map((item, index) => (
+                    <View key={index} style={dashboardScreenStyles.dataRow}>
+                      <Text style={[dashboardScreenStyles.dataLabel, { color: COLORS.danger }]}>
+                        {item.label}
+                      </Text>
+                      <Text style={[dashboardScreenStyles.dataValue, { color: COLORS.danger, fontWeight: 'bold' }]}>
+                        {item.value}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
+
+            {/* ✅ SECTION 5 - DONNÉES TECHNIQUES (Optionnel - si disponible) */}
+            {(meterData?.d_time_v || meterData?.sum_v2) && (
+              <>
+                <Text style={dashboardScreenStyles.sectionTitle}>
+                  🔬 Données Techniques
+                </Text>
+                <View style={dashboardScreenStyles.dataSection}>
+                  {[
+                    ...(meterData?.d_time_v ? [{ label: 'Delta Time V', value: `${meterData.d_time_v} ms`, icon: '⏱️' }] : []),
+                    ...(meterData?.d_time_i ? [{ label: 'Delta Time I', value: `${meterData.d_time_i} ms`, icon: '⏱️' }] : []),
+                    ...(meterData?.sum_v2 ? [{ label: 'Sum V²', value: `${meterData.sum_v2.toFixed(1)}`, icon: '📊' }] : []),
+                    ...(meterData?.sum_i2 ? [{ label: 'Sum I²', value: `${meterData.sum_i2.toFixed(1)}`, icon: '📊' }] : []),
+                    ...(meterData?.delta_t ? [{ label: 'Delta T', value: `${meterData.delta_t} s`, icon: '⏰' }] : []),
+                    ...(meterData?.max_i ? [{ label: 'Max Current', value: `${meterData.max_i} A`, icon: '📈' }] : []),
+                  ].map((item, index) => (
+                    <View key={index} style={dashboardScreenStyles.dataRow}>
+                      <Text style={dashboardScreenStyles.dataLabel}>
+                        {item.icon} {item.label}
+                      </Text>
+                      <Text style={dashboardScreenStyles.dataValue}>{item.value}</Text>
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
+
+            {/* Espace en bas pour éviter que le contenu soit coupé */}
+            <View style={{ height: 20 }} />
+          </ScrollView>
+
+          {/* Footer fixe */}
+          <TouchableOpacity
+            style={dashboardScreenStyles.closeButton}
+            onPress={() => setShowDataModal(false)}
+          >
+            <Text style={dashboardScreenStyles.closeButtonText}>Fermer</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </View>
+    </Modal>
+
     </View>
   );
 }

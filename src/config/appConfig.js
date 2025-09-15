@@ -22,8 +22,8 @@ export const APP_CONFIG = {
           INFO: ESP32_INFO_ENDPOINT || '/',
       },
       AP_CONFIG: {
-          SSID: 'enerflow',
-          DEFAULT_IP: '192.168.4.1'
+        SSID: 'Energyria',
+        DEFAULT_IP: '192.168.4.1'
       }
   },
   
