@@ -13,18 +13,18 @@ export const APP_CONFIG = {
   USE_MOCK_DATA: false,
   
   ESP32_CONFIG: {
-      BASE_IP: ESP32_BASE_IP,
-      TIMEOUT: parseInt(ESP32_TIMEOUT),
-      SCAN_RANGE: [1],
-      ENDPOINTS: {
-          DATA: ESP32_DATA_ENDPOINT,
-          CONTROL: ESP32_CONTROL_ENDPOINT,
-          INFO: ESP32_INFO_ENDPOINT || '/',
-      },
-      AP_CONFIG: {
-        SSID: 'Energyria',
-        DEFAULT_IP: '192.168.4.1'
-      }
+    BASE_IP: ESP32_BASE_IP,
+    TIMEOUT: parseInt(ESP32_TIMEOUT),
+    SCAN_RANGE: [1],
+    ENDPOINTS: {
+        DATA: ESP32_DATA_ENDPOINT,
+        CONTROL: ESP32_CONTROL_ENDPOINT,
+        INFO: ESP32_INFO_ENDPOINT || '/',
+    },
+    AP_CONFIG: {
+      SSID: 'Energyria',
+      DEFAULT_IP: '192.168.4.1'
+    }
   },
   
   DEV_CONFIG: {

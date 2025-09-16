@@ -161,23 +161,25 @@ class ESP32ApiService {
 
   async scanNetwork() {
     const devices = [];
-    
+    let scanStatus = null; 
+
     devLog('SCAN', 'Scan réseau pour nouveau firmware Arduino...');
 
     const ip = APP_CONFIG.ESP32_CONFIG.BASE_IP;
     
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
       
-      const response = await fetch(`http://${ip}/`, {
+      const response = await fetch(`http://${ip}/data`, {
         signal: controller.signal,
-        method: 'HEAD',
+        method: 'GET',
       });
       
       clearTimeout(timeoutId);
+      scanStatus = response.status;
       
-      if (response.ok) {
+      if (response.status == 200) {
         devices.push({
           ip,
           serialNumber: `ENERGYRIA_${Date.now().toString().slice(-6)}`,
@@ -189,11 +191,12 @@ class ESP32ApiService {
       }
       
     } catch (error) {
+      scanStatus = `${error}`;
       devLog('SCAN', `${ip} non accessible - Vérifiez la connexion au WiFi "${APP_CONFIG.ESP32_CONFIG.AP_CONFIG.SSID}"`);
     }
 
     devLog('SCAN', `✅ Nouveau firmware: ${devices.length} équipement(s) détecté(s)`);
-    return devices;
+    return { devices, scanStatus, ip };
   }
 
   disconnect() {

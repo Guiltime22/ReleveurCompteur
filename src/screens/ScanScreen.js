@@ -27,7 +27,7 @@ export default function ScanScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const { devices, isScanning, error, scanNetwork } = useDeviceScanner();
+  const { devices, isScanning, error, scanStatus, ip, scanNetwork } = useDeviceScanner();
   const { connectToDevice, isLoading, isConnected } = useDevice();
 
   useEffect(() => {
@@ -108,6 +108,22 @@ export default function ScanScreen({ navigation }) {
           <Ionicons name="scan" size={24} color="white" />
           <View style={scanScreenStyles.headerTextContainer}>
             <Text style={scanScreenStyles.title}>Scanner</Text>
+            {scanStatus && (
+                  <View style={{
+                      backgroundColor: scanStatus === 200 ? '#d4edda' : '#f8d7da',
+                      padding: 10,
+                      marginVertical: 10,
+                      borderRadius: 5,
+                  }}>
+                      <Text style={{
+                          color: scanStatus === 200 ? '#155724' : '#721c24',
+                          fontSize: 12,
+                          textAlign: 'center'
+                      }}>
+                          🔍 Debug: Status {scanStatus}, Ip {ip}
+                      </Text>
+                  </View>
+              )}
             <Text style={scanScreenStyles.subtitle}>
               {isScanning
                 ? "Recherche en cours..."
