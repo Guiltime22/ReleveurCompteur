@@ -41,18 +41,6 @@ export default function DeviceCard({ device, onPress, isSelected = false }) {
           </Text>
         </View>
         
-        <View style={deviceCardStyles.statusContainer}>
-          <View style={deviceCardStyles.signalContainer}>
-            <Ionicons 
-              name="wifi" 
-              size={16} 
-              color={getSignalColor(device.signalStrength)} 
-            />
-            <Text style={deviceCardStyles.signalText}>
-              {device.signalStrength}%
-            </Text>
-          </View>
-        </View>
       </View>
       
       <View style={deviceCardStyles.deviceFooter}>
